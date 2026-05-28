@@ -1,0 +1,194 @@
+:root {
+    --laranja:        #e07b00;
+    --laranja-escuro: #b86200;
+    --laranja-claro:  #f5a030;
+    --laranja-fundo:  #fff8f0;
+    --cinza-escuro:   #2b2b2b;
+    --cinza-medio:    #555555;
+    --cinza-claro:    #f0f0f0;
+    --cinza-borda:    #dddddd;
+    --branco:         #ffffff;
+    --codigo-fundo:   #1e1e1e;
+    --codigo-texto:   #d4d4d4;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--laranja-fundo);
+    color: var(--cinza-escuro);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============================================
+   CABEÇALHO DA PÁGINA (banner interno)
+   ============================================ */
+.pagina-banner {
+    background-color: var(--cinza-escuro);
+    color: var(--branco);
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.pagina-banner h1 {
+    font-size: 1.8rem;
+    color: var(--laranja-claro);
+    margin-bottom: 8px;
+}
+
+.pagina-banner p {
+    font-size: 0.93rem;
+    color: #aaaaaa;
+}
+
+/* ============================================
+   ÁREA PRINCIPAL
+   ============================================ */
+.pagina-conteudo {
+    flex: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 20px;
+    width: 100%;
+}
+
+/* ============================================
+   SEÇÃO (bloco de conteúdo)
+   ============================================ */
+.secao {
+    margin-bottom: 48px;
+}
+
+/* ---- Título de seção ---- */
+.secao-titulo {
+    font-size: 1.15rem;
+    color: var(--laranja-escuro);
+    border-left: 4px solid var(--laranja);
+    padding-left: 12px;
+    margin-bottom: 16px;
+}
+
+/* ---- Texto corrido ---- */
+.secao p {
+    font-size: 0.93rem;
+    color: var(--cinza-medio);
+    line-height: 1.75;
+    margin-bottom: 12px;
+}
+
+/* ---- Lista de tópicos ---- */
+.secao ul {
+    margin: 12px 0 12px 20px;
+}
+
+.secao ul li {
+    font-size: 0.93rem;
+    color: var(--cinza-medio);
+    line-height: 1.7;
+    margin-bottom: 6px;
+}
+
+/* ============================================
+   BLOCO DE IMAGEM
+   ============================================ */
+.secao-imagem {
+    text-align: center;
+    margin: 24px 0;
+}
+
+.secao-imagem img {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid var(--cinza-borda);
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+/* Legenda abaixo da imagem */
+.secao-imagem figcaption {
+    font-size: 0.82rem;
+    color: #999999;
+    margin-top: 8px;
+    font-style: italic;
+}
+
+/* ============================================
+   BLOCO DE CÓDIGO
+   ============================================ */
+.bloco-codigo {
+    background-color: var(--codigo-fundo);
+    border-radius: 6px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin-top: 12px;
+}
+
+.bloco-codigo pre {
+    margin: 0;
+}
+
+.bloco-codigo code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.87rem;
+    color: var(--codigo-texto);
+    line-height: 1.7;
+    white-space: pre;
+}
+
+/* ---- Label acima do bloco de código ---- */
+.codigo-label {
+    font-size: 0.78rem;
+    font-weight: bold;
+    color: var(--laranja-claro);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* ============================================
+   CAIXA DE DESTAQUE (dica / atenção)
+   ============================================ */
+.destaque {
+    background-color: #fff3e0;
+    border-left: 4px solid var(--laranja);
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 0.9rem;
+    color: var(--cinza-medio);
+    line-height: 1.6;
+}
+
+.destaque strong {
+    color: var(--laranja-escuro);
+}
+
+/* ============================================
+   LINHA DIVISÓRIA ENTRE SEÇÕES
+   ============================================ */
+.divisor {
+    border: none;
+    border-top: 1px solid var(--cinza-borda);
+    margin: 40px 0;
+}
+
+/* ============================================
+   Responsivo
+   ============================================ */
+@media (max-width: 600px) {
+    .pagina-banner h1 {
+        font-size: 1.4rem;
+    }
+
+    .bloco-codigo {
+        padding: 14px 16px;
+    }
+}

@@ -1,0 +1,128 @@
+:root {
+    --laranja-principal: #e07b00;
+    --laranja-escuro: #b86200;
+    --laranja-claro: #f5a030;
+    --branco: #ffffff;
+    --cinza-texto: #f0f0f0;
+}
+
+.header-principal {
+    width: 100%;
+    background-color: var(--laranja-principal);
+    font-family: Arial, Helvetica, sans-serif;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.header-barra {
+    max-width: 1300px;
+    min-height: 70px;
+    margin: 0 auto;
+    padding: 0 24px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-logo {
+    color: var(--branco);
+    text-decoration: none;
+    font-size: 26px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.header-logo span {
+    display: block;
+    font-size: 13px;
+    font-weight: normal;
+    color: var(--cinza-texto);
+    margin-top: 3px;
+}
+
+.header-menu {
+    display: flex;
+    align-items: center;
+}
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.header-nav li {
+    display: flex;
+    align-items: center;
+}
+
+.header-nav a {
+    color: var(--branco);
+    text-decoration: none;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+.header-nav a:hover {
+    background-color: var(--laranja-escuro);
+}
+
+.nav-sair {
+    border: 1px solid var(--laranja-claro);
+    color: var(--branco);
+}
+
+.header-usuario {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
+.header-foto {
+    width: 40px;
+    height: 40px;
+    max-width: 40px;
+    max-height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    flex-shrink: 0;
+
+    border: 2px solid var(--branco);
+    background-color: var(--branco);
+}
+
+.header-nome {
+    color: var(--branco);
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+@media(max-width: 900px) {
+    .header-barra {
+        flex-direction: column;
+        padding: 14px;
+    }
+
+    .header-nav {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .header-usuario {
+        margin-left: 0;
+    }
+}
+

@@ -1,0 +1,103 @@
+/* =============================================
+   footer.css - Estilos do rodapé
+   Sistema: Ed Ensino
+   ============================================= */
+
+/* ---- Variáveis (mesmo padrão do header) ---- */
+:root {
+    --laranja-claro: #f5a030;
+}
+
+/* ---- Rodapé principal ---- */
+.footer-principal {
+    background-color: #2b2b2b;
+    color: #cccccc;
+    font-family: Arial, sans-serif;
+    font-size: 0.9rem;
+    margin-top: 40px;
+}
+
+/* ---- Área de conteúdo (descrição + links) ---- */
+.footer-conteudo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px 20px;
+    gap: 30px;
+}
+
+/* ---- Bloco esquerdo: descrição ---- */
+.footer-descricao h2 {
+    color: var(--laranja-claro);
+    font-size: 1.2rem;
+    margin: 0 0 8px 0;
+}
+
+.footer-descricao p {
+    margin: 0;
+    line-height: 1.6;
+    color: #aaaaaa;
+    max-width: 320px;
+}
+
+/* ---- Bloco direito: links rápidos ---- */
+.footer-links h3 {
+    color: var(--laranja-claro);
+    font-size: 0.95rem;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.footer-links ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.footer-links ul li {
+    margin-bottom: 6px;
+}
+
+.footer-links ul li a {
+    color: #cccccc;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-links ul li a:hover {
+    color: var(--laranja-claro);
+}
+
+/* ---- Linha divisória ---- */
+.footer-divisor {
+    border: none;
+    border-top: 1px solid #444444;
+    margin: 0;
+}
+
+/* ---- Rodapé de copyright ---- */
+.footer-copyright {
+    text-align: center;
+    padding: 14px 20px;
+    color: #777777;
+    font-size: 0.82rem;
+}
+
+/* ============================================
+   Responsivo: telas menores que 600px
+   ============================================ */
+@media (max-width: 600px) {
+
+    .footer-conteudo {
+        flex-direction: column;
+        padding: 20px 16px;
+        gap: 20px;
+    }
+
+    .footer-descricao p {
+        max-width: 100%;
+    }
+}
