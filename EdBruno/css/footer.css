@@ -1,103 +1,101 @@
-/* =============================================
-   footer.css - Estilos do rodapé
-   Sistema: Ed Ensino
-   ============================================= */
+.footer{
+    width: 100%;
 
-/* ---- Variáveis (mesmo padrão do header) ---- */
-:root {
-    --laranja-claro: #f5a030;
+    background: #020617;
+
+    margin-top: 80px;
+
+    border-top: 1px solid rgba(255,255,255,0.08);
 }
 
-/* ---- Rodapé principal ---- */
-.footer-principal {
-    background-color: #2b2b2b;
-    color: #cccccc;
-    font-family: Arial, sans-serif;
-    font-size: 0.9rem;
-    margin-top: 40px;
-}
+.footer-content{
+    width: 100%;
+    max-width: 1300px;
 
-/* ---- Área de conteúdo (descrição + links) ---- */
-.footer-conteudo {
+    margin: auto;
+
+    padding: 60px 40px;
+
     display: flex;
-    align-items: flex-start;
     justify-content: space-between;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 30px 20px;
-    gap: 30px;
+    gap: 40px;
+
+    flex-wrap: wrap;
 }
 
-/* ---- Bloco esquerdo: descrição ---- */
-.footer-descricao h2 {
-    color: var(--laranja-claro);
-    font-size: 1.2rem;
-    margin: 0 0 8px 0;
+.footer-left h2{
+    color: white;
+
+    font-size: 32px;
+
+    margin-bottom: 15px;
 }
 
-.footer-descricao p {
-    margin: 0;
-    line-height: 1.6;
-    color: #aaaaaa;
-    max-width: 320px;
+.footer-left span{
+    color: #38bdf8;
 }
 
-/* ---- Bloco direito: links rápidos ---- */
-.footer-links h3 {
-    color: var(--laranja-claro);
-    font-size: 0.95rem;
-    margin: 0 0 10px 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+.footer-left p{
+    color: #94a3b8;
+
+    max-width: 350px;
+
+    line-height: 28px;
 }
 
-.footer-links ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+.footer-links,
+.footer-info{
+    display: flex;
+    flex-direction: column;
 }
 
-.footer-links ul li {
-    margin-bottom: 6px;
+.footer-links h3,
+.footer-info h3{
+    color: white;
+
+    margin-bottom: 18px;
 }
 
-.footer-links ul li a {
-    color: #cccccc;
+.footer-links a{
+    color: #94a3b8;
+
     text-decoration: none;
-    transition: color 0.2s;
+
+    margin-bottom: 12px;
+
+    transition: 0.3s;
 }
 
-.footer-links ul li a:hover {
-    color: var(--laranja-claro);
+.footer-links a:hover{
+    color: #38bdf8;
 }
 
-/* ---- Linha divisória ---- */
-.footer-divisor {
-    border: none;
-    border-top: 1px solid #444444;
-    margin: 0;
+.footer-info p{
+    color: #94a3b8;
+
+    margin-bottom: 12px;
 }
 
-/* ---- Rodapé de copyright ---- */
-.footer-copyright {
+.footer-bottom{
+    width: 100%;
+
+    border-top: 1px solid rgba(255,255,255,0.05);
+
+    padding: 20px;
+
     text-align: center;
-    padding: 14px 20px;
-    color: #777777;
-    font-size: 0.82rem;
 }
 
-/* ============================================
-   Responsivo: telas menores que 600px
-   ============================================ */
-@media (max-width: 600px) {
+.footer-bottom p{
+    color: #64748b;
 
-    .footer-conteudo {
+    font-size: 14px;
+}
+
+@media(max-width: 700px){
+
+    .footer-content{
         flex-direction: column;
-        padding: 20px 16px;
-        gap: 20px;
     }
 
-    .footer-descricao p {
-        max-width: 100%;
-    }
 }

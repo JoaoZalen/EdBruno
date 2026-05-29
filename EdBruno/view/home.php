@@ -1,88 +1,130 @@
 <?php
-include 'session.php';
+session_start();
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Ed Ensino</title>
-    <link rel="stylesheet" href="../css/header.css?v=2">
-    <link rel="stylesheet" href="../css/footer.css?v=2">
-    <link rel="stylesheet" href="../css/home.css?v=2">
-</head>
-<body>
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Home - ED Ensino</title>
+
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/home.css">
+
+</head>
+
+<body>
 
 <?php include 'header.php'; ?>
 
+<main class="home-container">
 
-<!-- ========== HERO ========== -->
-<section class="home-hero">
-    <h1>
-    Olá 
-    <?php
-        if(isset($_SESSION['usuario']))
-        {
-        $user = $_SESSION['usuario'];
-        }
-    echo strtoupper($user->get_Nome().',') ;
-    ?>
-     Bem-vindo ao Ed Ensino</h1>
-    <p>
-        Portal de ensino de Estruturas de Dados.
-        Explore os conteúdos abaixo, com teoria, imagens e exemplos de código.
-    </p>
-</section>
+    <section class="hero">
 
+        <div class="hero-left">
 
-<!-- ========== CARDS DE CONTEÚDO ========== -->
-<main class="home-conteudo">
+            <h1>
+                Aprenda
+                <span>Estruturas de Dados</span>
+                de forma moderna
+            </h1>
 
-    <p class="home-secao-titulo">Escolha um conteúdo</p>
-
-    <div class="home-cards">
-
-        <!-- Card: TAD -->
-        <a href="tad.php" class="home-card">
-            <div class="home-card-icone">&#128196;</div>
-            <h2>TAD — Tipo Abstrato de Dado</h2>
             <p>
-                Aprenda o conceito de abstração de dados, separação entre
-                interface e implementação, e como modelar estruturas
-                de forma independente da linguagem.
+                Explore conteúdos sobre TAD, listas simplesmente encadeadas
+                e listas duplamente encadeadas com exemplos em C#,
+                explicações visuais e teoria completa.
             </p>
-            <span class="home-card-link">Ver conteúdo &rarr;</span>
-        </a>
 
-        <!-- Card: Lista Simples -->
-        <a href="lista_simples.php" class="home-card">
-            <div class="home-card-icone">&#128279;</div>
-            <h2>Lista Simplesmente Encadeada</h2>
-            <p>
-                Estude a estrutura de nós encadeados em uma única direção.
-                Veja operações de inserção, remoção e busca com exemplos
-                visuais e código em C#.
-            </p>
-            <span class="home-card-link">Ver conteúdo &rarr;</span>
-        </a>
+            <div class="hero-buttons">
 
-        <!-- Card: Lista Dupla -->
-        <a href="lista_dupla.php" class="home-card">
-            <div class="home-card-icone">&#8644;</div>
-            <h2>Lista Duplamente Encadeada</h2>
-            <p>
-                Entenda como nós com ponteiros para os dois sentidos
-                funcionam. Navegue para frente e para trás na lista
-                com exemplos práticos e ilustrações.
-            </p>
-            <span class="home-card-link">Ver conteúdo &rarr;</span>
-        </a>
+                <a href="tad.php" class="btn-primary">
+                    Começar
+                </a>
 
-    </div>
+                <a href="#conteudos" class="btn-secondary">
+                    Ver conteúdos
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="hero-right">
+
+            <div class="code-card">
+
+<pre>
+class Node
+{
+    public int valor;
+    public Node prox;
+}
+</pre>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <section class="conteudos" id="conteudos">
+
+        <h2>
+            Conteúdos Disponíveis
+        </h2>
+
+        <div class="cards">
+
+            <a href="tad.php" class="card">
+
+                <div class="card-icon">📘</div>
+
+                <h3>TAD</h3>
+
+                <p>
+                    Entenda o conceito de Tipo Abstrato de Dados,
+                    sua importância e aplicações.
+                </p>
+
+            </a>
+
+            <a href="lista_simples.php" class="card">
+
+                <div class="card-icon">🔗</div>
+
+                <h3>Lista Simples</h3>
+
+                <p>
+                    Aprenda como funcionam listas simplesmente
+                    encadeadas e seus ponteiros.
+                </p>
+
+            </a>
+
+            <a href="lista_dupla.php" class="card">
+
+                <div class="card-icon">↔️</div>
+
+                <h3>Lista Dupla</h3>
+
+                <p>
+                    Explore listas duplamente encadeadas e
+                    navegação bidirecional.
+                </p>
+
+            </a>
+
+        </div>
+
+    </section>
 
 </main>
-
 
 <?php include 'footer.php'; ?>
 

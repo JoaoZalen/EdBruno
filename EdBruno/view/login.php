@@ -1,68 +1,82 @@
 <?php
-session_start(); //Inicia a sessão para verificar o login
+session_start();
 ?>
 
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
+
     <meta charset="UTF-8">
-    <title>Login - Ed Ensino</title>
-    <link rel="stylesheet" href="../css/header.css?v=2">
-    <link rel="stylesheet" href="../css/footer.css?v=2">
-    <link rel="stylesheet" href="../css/login.css?v=2">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ED Ensino</title>
+
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/login.css">
+
 </head>
+
 <body>
 
 <?php include 'header.php'; ?>
 
-<main>
+<main class="container-login">
 
-<?php
-//verifica se existe um erro na sessão e exibe o erro em um cardzinho vermelho, depois de exibir o erro, 
-// ele é removido da sessão para não aparecer mais
-if(isset($_SESSION['Error']))
-{
-    echo '
-    <section style="
-        background-color: rgb(220, 53, 69);
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        font-family: Arial, Helvetica, sans-serif;
-        font-weight: bold;
-        width: 100%;
-        max-width: 400px;
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
-    ">
-        ' . $_SESSION['Error'] . '
+    <section class="login-box">
+
+        <div class="left-login">
+
+            <h1>
+                Bem-vindo ao
+                <span>ED Ensino</span>
+            </h1>
+
+            <p>
+                Acesse sua conta para continuar estudando
+                Estruturas de Dados.
+            </p>
+
+        </div>
+
+        <div class="right-login">
+
+            <form action="../processamento/processamento.php" method="POST">
+
+                <input type="hidden" name="acao" value="login">
+
+                <h2>Login</h2>
+
+                <?php
+                if(isset($_SESSION['Error'])){
+                    echo "<div class='mensagem-erro'>" . $_SESSION['Error'] . "</div>";
+                    unset($_SESSION['Error']);
+                }
+                ?>
+
+                <div class="input-group">
+                    <label>E-mail</label>
+                    <input type="email" name="inputEmail" placeholder="Digite seu e-mail" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input type="password" name="inputSenha" placeholder="Digite sua senha" required>
+                </div>
+
+                <button type="submit" class="btn-entrar">
+                    Entrar
+                </button>
+
+                <a href="cadastro.php" class="cadastro-link">
+                    Não possui conta? Cadastre-se
+                </a>
+
+            </form>
+
+        </div>
+
     </section>
-    ';
 
-    unset($_SESSION['Error']);
-}
-?>
-    <h2>Login</h2>
-
-    <?php
-        if(isset($_GET['erro']))
-        {
-            echo '<p>Email ou senha incorretos.</p>';
-        }
-    ?>
-
-    <form method="POST" action="../processamento/processamento.php">
-        <input type="hidden" name="acao" value="login">
-
-        <label>Email</label>
-        <input type="email" name="inputEmail" required>
-
-        <label>Senha</label>
-        <input type="password" name="inputSenha" required>
-
-        <input type="submit" value="Entrar">
-    </form>
-        <a href="cadastro.php">Não tem uma conta? Cadastre-se</a>
 </main>
 
 <?php include 'footer.php'; ?>

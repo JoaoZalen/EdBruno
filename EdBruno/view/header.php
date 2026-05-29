@@ -1,56 +1,55 @@
+<?php
 
+if(session_status() == PHP_SESSION_NONE){
+    session_start();
+}
 
-<header class="header-principal">
+?>
 
-    <section class="header-barra">
+<header class="navbar">
 
-        <a href="home.php" class="header-logo">
-            Ed Ensino
-            <span>Estruturas de Dados</span>
+    <div class="logo-area">
+
+        <a href="home.php" class="logo-link">
+            <h1 class="logo">
+                ED<span>Ensino</span>
+            </h1>
         </a>
 
-        <nav class="header-menu">
+    </div>
 
-            <ul class="header-nav">
+    <nav class="nav-links">
 
-                <li><a href="home.php">Home</a></li>
+        <a href="home.php">Home</a>
 
-                <li><a href="tad.php">TAD</a></li>
+        <a href="tad.php">TAD</a>
 
-                <li><a href="lista_simples.php">Lista Simples</a></li>
+        <a href="lista_simples.php">Lista Simples</a>
 
-                <li><a href="lista_dupla.php">Lista Dupla</a></li>
+        <a href="lista_dupla.php">Lista Dupla</a>
 
+    </nav>
+
+    <div class="user-area">
+
+        <?php if(isset($_SESSION['usuario'])){ ?>
+
+            <span class="usuario">
                 <?php
-                if(isset($_SESSION['usuario']))
-                {
-                    $usuario = $_SESSION['usuario'];
+                    if(isset($_SESSION['usuario_nome'])){
+                        echo $_SESSION['usuario_nome'];
+                    }
                 ?>
+            </span>
 
-                    <li class="header-usuario">
+            <a href="logout.php" class="btn-sair">Sair</a>
 
-                        <img 
-                            src="../uploads/<?php echo $usuario->get_Foto(); ?>"
-                            alt="Foto Perfil"
-                            class="header-foto"
-                        >
+        <?php }else{ ?>
 
-                    </li>
+            <a href="login.php" class="btn-login">Login</a>
 
-                <?php
-                }
-                ?>
+        <?php } ?>
 
-                <li>
-                    <a href="logout.php" class="nav-sair">
-                        Sair
-                    </a>
-                </li>
-
-            </ul>
-
-        </nav>
-
-    </section>
+    </div>
 
 </header>

@@ -8,12 +8,11 @@ session_start();
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - ED Ensino</title>
 
-    <title>Cadastro - Ed Ensino</title>
-
-    <link rel="stylesheet" href="../css/header.css?v=2">
-    <link rel="stylesheet" href="../css/footer.css?v=2">
-    <link rel="stylesheet" href="../css/cadastro.css?v=2">
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/cadastro.css">
 
 </head>
 
@@ -21,148 +20,77 @@ session_start();
 
 <?php include 'header.php'; ?>
 
-<?php
+<main class="container-cadastro">
 
-//verifica se existe um erro na sessão e exibe o erro
-if(isset($_SESSION['Error']))
-{
-    echo '
-    <section style="
-        background-color: rgb(220, 53, 69);
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        font-family: Arial, Helvetica, sans-serif;
-        font-weight: bold;
-        width: 100%;
-        max-width: 400px;
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
-    ">
-        ' . $_SESSION['Error'] . '
-    </section>
-    ';
+    <section class="cadastro-box">
 
-    unset($_SESSION['Error']);
-}
+        <div class="left-cadastro">
 
-?>
-
-<main class="cadastro-pagina">
-
-    <div class="cadastro-card">
-
-        <div class="cadastro-titulo">
-
-            <h1>Criar Conta</h1>
-
-            <p>Preencha os dados para se cadastrar</p>
-
-        </div>
-
-        <hr class="cadastro-divisor">
-
-        <form action="../processamento/processamento.php" method="POST">
-
-            <input type="hidden" name="acao" value="cadastro">
-
-            <div class="campo-grupo">
-
-                <label for="nome">Nome Completo</label>
-
-                <input 
-                    type="text"
-                    id="nome"
-                    name="nome"
-                    placeholder="Ex: Joao da Silva"
-                    required
-                    maxlength="100"
-                >
-
-            </div>
-
-            <div class="campo-grupo">
-
-                <label for="email">E-mail</label>
-
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Ex: joao@email.com"
-                    required
-                    maxlength="150"
-                >
-
-            </div>
-
-            <div class="campo-grupo">
-
-                <label for="cpf">CPF</label>
-
-                <input
-                    type="text"
-                    id="cpf"
-                    name="cpf"
-                    placeholder="Ex: 111.111.111-11"
-                    required
-                    maxlength="14"
-                >
-
-            </div>
-
-            <div class="campo-grupo">
-
-                <label for="senha">Senha</label>
-
-                <input
-                    type="password"
-                    id="senha"
-                    name="senha"
-                    placeholder="Mínimo 6 caracteres"
-                    required
-                    minlength="6"
-                    maxlength="50"
-                >
-
-            </div>
-
-            <div class="campo-grupo">
-
-                <label for="confirmar_senha">Confirmar Senha</label>
-
-                <input
-                    type="password"
-                    id="confirmar_senha"
-                    name="confirmar_senha"
-                    placeholder="Repita a senha"
-                    required
-                    minlength="6"
-                    maxlength="50"
-                >
-
-            </div>
-
-            <button type="submit" class="btn-cadastrar">
-
-                Cadastrar
-
-            </button>
-
-        </form>
-
-        <div class="cadastro-login-link">
+            <h1>
+                Crie sua conta no
+                <span>ED Ensino</span>
+            </h1>
 
             <p>
-
-                Já tem uma conta?
-                <a href="login.php">Faça login</a>
-
+                Cadastre-se para acessar os conteúdos de Estruturas de Dados,
+                TAD e listas encadeadas.
             </p>
 
         </div>
 
-    </div>
+        <div class="right-cadastro">
+
+            <form action="../processamento/processamento.php" method="POST">
+
+                <input type="hidden" name="acao" value="cadastro">
+
+                <h2>Cadastro</h2>
+
+                <?php
+                if(isset($_SESSION['Error'])){
+                    echo "<div class='mensagem-erro'>" . $_SESSION['Error'] . "</div>";
+                    unset($_SESSION['Error']);
+                }
+                ?>
+
+                <div class="input-group">
+                    <label>Nome completo</label>
+                    <input type="text" name="nome" placeholder="Digite seu nome" required>
+                </div>
+
+                <div class="input-group">
+                    <label>E-mail</label>
+                    <input type="email" name="email" placeholder="Digite seu e-mail" required>
+                </div>
+
+                <div class="input-group">
+                    <label>CPF</label>
+                    <input type="text" name="cpf" placeholder="Digite seu CPF" required maxlength="14">
+                </div>
+
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input type="password" name="senha" placeholder="Digite sua senha" required minlength="6">
+                </div>
+
+                <div class="input-group">
+                    <label>Confirmar senha</label>
+                    <input type="password" name="confirmar_senha" placeholder="Repita sua senha" required minlength="6">
+                </div>
+
+                <button type="submit" class="btn-cadastrar">
+                    Cadastrar
+                </button>
+
+                <a href="login.php" class="login-link">
+                    Já possui conta? Entrar
+                </a>
+
+            </form>
+
+        </div>
+
+    </section>
 
 </main>
 
