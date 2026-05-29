@@ -14,6 +14,7 @@ class banco
         $this->login = "root";
         $this->senha = "";
         $this->dataBase = "ed_ensino";
+
     }
 
     //Métodos
@@ -36,6 +37,7 @@ class banco
         $consulta = "SELECT * FROM usuarios 
                      WHERE email = '$email' 
                      AND senha = '$senha'";
+
         $resultado = mysqli_query($conexao, $consulta);
 
         if(mysqli_num_rows($resultado) > 0){

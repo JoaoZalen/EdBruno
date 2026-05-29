@@ -34,12 +34,14 @@ if(session_status() == PHP_SESSION_NONE){
 
         <?php if(isset($_SESSION['usuario'])){ ?>
 
+            <img
+                src="../uploads/<?php echo $_SESSION['usuario']->get_Foto(); ?>"
+                alt="Foto do usuário"
+                class="header-foto"
+            >
+
             <span class="usuario">
-                <?php
-                    if(isset($_SESSION['usuario_nome'])){
-                        echo $_SESSION['usuario_nome'];
-                    }
-                ?>
+                <?php echo $_SESSION['usuario']->get_Nome(); ?>
             </span>
 
             <a href="logout.php" class="btn-sair">Sair</a>

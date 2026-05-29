@@ -92,6 +92,27 @@ body{
     gap: 15px;
 }
 
+.header-foto{
+    width: 40px;
+    height: 40px;
+
+    min-width: 40px;
+    min-height: 40px;
+
+    max-width: 40px;
+    max-height: 40px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    border: 2px solid white;
+
+    background: white;
+
+    display: block;
+}
+
 .usuario{
     color: white;
     font-size: 15px;

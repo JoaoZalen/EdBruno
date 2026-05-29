@@ -1,101 +1,75 @@
 <?php
+session_start();    
+require_once("../controller/controlador.php"); //puxa os métodos do controlador
+require_once("../model/banco.php"); //puxa os métodos do banco
+require_once("../model/usuario.php"); //puxa os métodos do usuario
 
-session_start();
+$controlador = new Controlador(); //instancia o controlador
 
-require_once("../controller/controlador.php");
-require_once("../model/banco.php");
-require_once("../model/Usuario.php");
-
-$controlador = new Controlador();
-
-if(isset($_POST['acao']) && $_POST['acao'] == "login"){
-
-    $email = isset($_POST['inputEmail']) ? $_POST['inputEmail'] : "";
-    $senha = isset($_POST['inputSenha']) ? $_POST['inputSenha'] : "";
+//Login
+if(isset($_POST['acao']) && $_POST['acao'] === 'login')
+{
+    $email = $_POST['inputEmail'] ?? '';
+    $senha = $_POST['inputSenha'] ?? '';
 
     if(empty($email) || empty($senha)){
-
-        $_SESSION['Error'] = "Por favor, preencha todos os campos.";
-
-        header("Location:../view/login.php");
-        exit();
+        $error = "Por favor, preencha todos os campos."; 
+        $_SESSION['Error'] = $error;
+        header('Location:login.php');
+        die();
     }
 
     if($controlador->Login($email, $senha) == true){
+        $_SESSION['estaLogado'] = TRUE;
+        header('Location:../view/home.php');
+        die();
+    } else 
+    {
+        $_SESSION['estaLogado'] = FALSE;
+        $error = "Erro ao fazer login. Verifique suas credenciais."; 
+        $_SESSION['Error'] = $error;
+        header('Location:../view/login.php');
+        die();
+    }
+}
 
-        $_SESSION['estaLogado'] = true;
+if(isset($_POST['acao']) && $_POST['acao'] === 'cadastro')
+{
+    $nome = $_POST['nome'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $cpf = $_POST['cpf'] ?? '';
+    $senha = $_POST['senha'] ?? '';
+    $confirmarSenha = $_POST['confirmar_senha'] ?? '';
 
-        if(isset($_SESSION['usuario'])){
+    if($senha !== $confirmarSenha){
+        $error = "As senhas não coincidem."; 
+        $_SESSION['Error'] = $error;
+        header('Location:../view/cadastro.php');
+        die();
+    }
 
+    if(empty($nome) || empty($email) || empty($cpf) || empty($senha)){
+        $error = "Por favor, preencha todos os campos."; 
+        $_SESSION['Error'] = $error;
+        header('Location:../view/cadastro.php');
+        die();
+    }
+
+    $controlador->cadastrarUsuario($nome, $email, $cpf, $senha);
+
+    if($controlador->Login($email, $senha) == true){
+        $_SESSION['estaLogado'] = TRUE;
+        if (isset($_SESSION['usuario'])) {
             $usuario = $_SESSION['usuario'];
-
-            if(is_object($usuario) && method_exists($usuario, "get_Nome")){
-                $_SESSION['usuario_nome'] = $usuario->get_Nome();
-            }
         }
+        header('Location:../view/home.php');
+        die();
 
-        header("Location:../view/home.php");
-        exit();
-    }
-    else{
-
-        $_SESSION['estaLogado'] = false;
-
-        $_SESSION['Error'] = "Email ou senha inválidos.";
-
-        header("Location:../view/login.php");
-        exit();
+    } else {
+        $_SESSION['estaLogado'] = FALSE;
+        $error = "Erro ao fazer login. Verifique suas credenciais."; 
+        $_SESSION['Error'] = $error;
+        header('Location:../view/login.php');
+        die(); 
     }
 }
-
-if(isset($_POST['acao']) && $_POST['acao'] == "cadastro"){
-
-    $nome = isset($_POST['nome']) ? $_POST['nome'] : "";
-    $email = isset($_POST['email']) ? $_POST['email'] : "";
-    $cpf = isset($_POST['cpf']) ? $_POST['cpf'] : "";
-    $senha = isset($_POST['senha']) ? $_POST['senha'] : "";
-    $confirmarSenha = isset($_POST['confirmar_senha']) ? $_POST['confirmar_senha'] : "";
-
-    if(empty($nome) || empty($email) || empty($cpf) || empty($senha) || empty($confirmarSenha)){
-
-        $_SESSION['Error'] = "Por favor, preencha todos os campos.";
-
-        header("Location:../view/cadastro.php");
-        exit();
-    }
-
-    if($senha != $confirmarSenha){
-
-        $_SESSION['Error'] = "As senhas não coincidem.";
-
-        header("Location:../view/cadastro.php");
-        exit();
-    }
-
-    try{
-
-        $controlador->cadastrarUsuario(
-            $nome,
-            $email,
-            $cpf,
-            $senha
-        );
-
-        $_SESSION['Error'] = "Cadastro realizado com sucesso. Faça login.";
-
-        header("Location:../view/login.php");
-        exit();
-
-    }catch(Exception $e){
-
-        $_SESSION['Error'] = "CPF já cadastrado. Use outro CPF ou faça login.";
-
-        header("Location:../view/cadastro.php");
-        exit();
-    }
-}
-
-header("Location:../view/login.php");
-exit();
-
-?>
