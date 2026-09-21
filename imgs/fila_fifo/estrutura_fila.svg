@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 320" width="100%" height="100%" style="background-color: #f8fafc; font-family: Arial, sans-serif;">
+  <defs>
+    <!-- Sombra para os cards -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <!-- Marcador de Seta Azul -->
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb" />
+    </marker>
+    <!-- Marcador de Seta Verde (Inicio) -->
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#16a34a" />
+    </marker>
+    <!-- Marcador de Seta Vermelha (Fim) -->
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#dc2626" />
+    </marker>
+  </defs>
+
+  <!-- Título do Diagrama -->
+  <text x="425" y="35" text-anchor="middle" font-size="20" font-weight="bold" fill="#1e293b">Estrutura Interna da Fila Encadeada FIFO</text>
+
+  <!-- PONTEIRO INICIO -->
+  <rect x="80" y="70" width="120" height="40" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="2" filter="url(#shadow)"/>
+  <text x="140" y="95" text-anchor="middle" font-size="14" font-weight="bold" fill="#15803d">inicio (front)</text>
+  <path d="M 140 110 L 140 155" stroke="#16a34a" stroke-width="3" fill="none" marker-end="url(#arrow-green)"/>
+
+  <!-- PONTEIRO FIM -->
+  <rect x="650" y="70" width="120" height="40" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2" filter="url(#shadow)"/>
+  <text x="710" y="95" text-anchor="middle" font-size="14" font-weight="bold" fill="#b91c1c">fim (rear)</text>
+  <path d="M 710 110 L 710 155" stroke="#dc2626" stroke-width="3" fill="none" marker-end="url(#arrow-red)"/>
+
+  <!-- NÓ 1 -->
+  <g transform="translate(80, 160)" filter="url(#shadow)">
+    <rect x="0" y="0" width="120" height="70" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <line x1="80" y1="0" x2="80" y2="70" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="40" y="42" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e293b">10</text>
+    <circle cx="100" cy="35" r="5" fill="#2563eb"/>
+    <text x="40" y="-8" text-anchor="middle" font-size="12" font-weight="bold" fill="#64748b">Nó 1 (Cabeça)</text>
+  </g>
+
+  <!-- PONTEIRO NÓ 1 -> NÓ 2 -->
+  <path d="M 180 195 L 285 195" stroke="#2563eb" stroke-width="3" fill="none" marker-end="url(#arrow-blue)"/>
+  <text x="232" y="185" text-anchor="middle" font-size="11" font-weight="bold" fill="#3b82f6">proximo</text>
+
+  <!-- NÓ 2 -->
+  <g transform="translate(290, 160)" filter="url(#shadow)">
+    <rect x="0" y="0" width="120" height="70" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <line x1="80" y1="0" x2="80" y2="70" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="40" y="42" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e293b">20</text>
+    <circle cx="100" cy="35" r="5" fill="#2563eb"/>
+    <text x="40" y="-8" text-anchor="middle" font-size="12" font-weight="bold" fill="#64748b">Nó 2</text>
+  </g>
+
+  <!-- PONTEIRO NÓ 2 -> NÓ 3 -->
+  <path d="M 390 195 L 495 195" stroke="#2563eb" stroke-width="3" fill="none" marker-end="url(#arrow-blue)"/>
+  <text x="442" y="185" text-anchor="middle" font-size="11" font-weight="bold" fill="#3b82f6">proximo</text>
+
+  <!-- NÓ 3 -->
+  <g transform="translate(500, 160)" filter="url(#shadow)">
+    <rect x="0" y="0" width="120" height="70" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <line x1="80" y1="0" x2="80" y2="70" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="40" y="42" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e293b">30</text>
+    <circle cx="100" cy="35" r="5" fill="#2563eb"/>
+    <text x="40" y="-8" text-anchor="middle" font-size="12" font-weight="bold" fill="#64748b">Nó 3 (Cauda)</text>
+  </g>
+
+  <!-- PONTEIRO NÓ 3 -> NULL -->
+  <path d="M 600 195 L 690 195" stroke="#94a3b8" stroke-width="3" stroke-dasharray="5,5" fill="none" marker-end="url(#arrow-blue)"/>
+  
+  <!-- BLANCO NULL -->
+  <rect x="695" y="175" width="60" height="40" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
+  <text x="725" y="200" text-anchor="middle" font-size="13" font-weight="bold" fill="#64748b">null</text>
+
+  <!-- LEGENDA -->
+  <text x="425" y="285" text-anchor="middle" font-size="12" fill="#475569">Remoção (Dequeue) ocorre em <tspan font-weight="bold" fill="#16a34a">inicio</tspan> | Inserção (Enqueue) ocorre em <tspan font-weight="bold" fill="#dc2626">fim</tspan></text>
+</svg>

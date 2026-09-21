@@ -28,6 +28,8 @@ if(session_status() == PHP_SESSION_NONE){
 
         <a href="lista_dupla.php">Lista Dupla</a>
 
+        <a href="fila_fifo.php">Fila FiFo</a>
+
     </nav>
 
     <div class="user-area">
