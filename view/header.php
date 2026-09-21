@@ -4,6 +4,16 @@ if(session_status() == PHP_SESSION_NONE){
     session_start();
 }
 
+$moedasHeader = null;
+if (isset($_SESSION['usuario_id'])) {
+    require_once("../model/banco.php");
+    $bdHeader = new banco();
+    $userHeader = $bdHeader->getUserById((int)$_SESSION['usuario_id']);
+    if ($userHeader) {
+        $moedasHeader = (int)$userHeader['moedas'];
+    }
+}
+
 ?>
 
 <header class="navbar">
@@ -28,7 +38,17 @@ if(session_status() == PHP_SESSION_NONE){
 
         <a href="lista_dupla.php">Lista Dupla</a>
 
+        <a href="pilha.php">Pilha</a>
+
         <a href="fila_fifo.php">Fila FiFo</a>
+
+        <a href="fila_prioridade.php">Fila de Prioridade</a>
+
+        <a href="quiz.php">Quiz</a>
+
+        <a href="loja.php">Loja</a>
+
+        <a href="perfil.php">Perfil</a>
 
     </nav>
 
@@ -44,6 +64,9 @@ if(session_status() == PHP_SESSION_NONE){
 
             <span class="usuario">
                 <?php echo $_SESSION['usuario']->get_Nome(); ?>
+                <?php if($moedasHeader !== null){ ?>
+                    <br><?php echo $moedasHeader; ?> moedas
+                <?php } ?>
             </span>
 
             <a href="logout.php" class="btn-sair">Sair</a>

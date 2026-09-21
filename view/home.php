@@ -36,8 +36,8 @@ include 'session.php';
             </h1>
 
             <p>
-                Explore conteúdos sobre TAD, listas simplesmente encadeadas
-                e listas duplamente encadeadas com exemplos em C#,
+                Explore conteúdos sobre TAD, listas, pilhas e filas
+                com exemplos em C#,
                 explicações visuais e teoria completa.
             </p>
 
@@ -116,6 +116,58 @@ class Node
                 <p>
                     Explore listas duplamente encadeadas e
                     navegação bidirecional.
+                </p>
+
+            </a>
+
+            <a href="pilha.php" class="card">
+
+                <div class="card-icon">📚</div>
+
+                <h3>Pilha</h3>
+
+                <p>
+                    Estude o comportamento LIFO, operações de topo
+                    e implementação encadeada.
+                </p>
+
+            </a>
+
+            <a href="fila_fifo.php" class="card">
+
+                <div class="card-icon">➡️</div>
+
+                <h3>Fila FIFO</h3>
+
+                <p>
+                    Entenda filas encadeadas, ponteiros de início e fim
+                    e ordem de chegada.
+                </p>
+
+            </a>
+
+            <a href="fila_prioridade.php" class="card">
+
+                <div class="card-icon">⭐</div>
+
+                <h3>Fila de Prioridade</h3>
+
+                <p>
+                    Veja como prioridades organizam o atendimento sem
+                    quebrar o FIFO nos empates.
+                </p>
+
+            </a>
+
+            <a href="quiz.php" class="card">
+
+                <div class="card-icon">🧠</div>
+
+                <h3>Quiz</h3>
+
+                <p>
+                    Responda perguntas sobre as estruturas estudadas
+                    e acompanhe seu desempenho.
                 </p>
 
             </a>

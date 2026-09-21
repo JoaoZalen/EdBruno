@@ -1,0 +1,416 @@
+body {
+    background: #0f172a;
+    color: #cbd5e1;
+}
+
+.painel-container {
+    width: 100%;
+    max-width: 1150px;
+    margin: 0 auto;
+    padding: 70px 8%;
+}
+
+.painel-titulo {
+    color: white;
+    font-size: 42px;
+    margin-bottom: 15px;
+}
+
+.painel-subtitulo {
+    color: #94a3b8;
+    font-size: 18px;
+    line-height: 30px;
+    margin-bottom: 35px;
+}
+
+.painel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.painel-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.22);
+    backdrop-filter: blur(10px);
+    animation: subirCard 0.35s ease both;
+}
+
+.painel-card h2,
+.painel-card h3 {
+    color: white;
+    margin-bottom: 15px;
+}
+
+.painel-card p,
+.painel-card li {
+    color: #cbd5e1;
+    line-height: 28px;
+}
+
+.painel-form label {
+    display: block;
+    color: #cbd5e1;
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+.painel-form input,
+.painel-form select {
+    width: 100%;
+    height: 52px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.05);
+    padding: 0 16px;
+    color: white;
+    outline: none;
+    margin-bottom: 18px;
+}
+
+.painel-form input:focus,
+.painel-form select:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 10px rgba(56,189,248,0.3);
+}
+
+.painel-btn {
+    display: inline-block;
+    border: none;
+    border-radius: 14px;
+    background: #38bdf8;
+    color: #0f172a;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 14px 26px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.painel-btn:hover {
+    background: #0ea5e9;
+    transform: translateY(-2px);
+}
+
+.quiz-progresso {
+    width: 100%;
+    height: 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.quiz-progresso span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #38bdf8, #22c55e);
+    transition: width 0.35s ease;
+}
+
+.alternativa {
+    display: block;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.alternativa:hover {
+    border-color: #38bdf8;
+    transform: translateX(4px);
+}
+
+.habilidades-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+}
+
+.habilidade-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 16px;
+    display: grid;
+    gap: 10px;
+}
+
+.habilidade-card img {
+    width: 74px;
+    height: 74px;
+    border-radius: 16px;
+    object-fit: cover;
+    border: 1px solid rgba(56,189,248,0.25);
+}
+
+.habilidade-card strong {
+    color: white;
+}
+
+.habilidade-card span {
+    color: #cbd5e1;
+    font-size: 14px;
+}
+
+.habilidade-explica {
+    color: #e2e8f0;
+    font-size: 14px;
+    line-height: 1.45;
+    margin: 8px 0 12px;
+}
+
+.habilidade-card button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.item-img {
+    width: 112px;
+    height: 112px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(56,189,248,0.12);
+    margin-bottom: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(56,189,248,0.25);
+    box-shadow: inset 0 0 24px rgba(56,189,248,0.16);
+}
+
+.item-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.moeda {
+    color: #facc15;
+    font-weight: 700;
+}
+
+@keyframes subirCard {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.loja-container {
+    max-width: 1220px;
+}
+
+.loja-balcao {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 28px;
+    align-items: center;
+    margin-bottom: 34px;
+}
+
+.vendedor-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(56,189,248,0.22);
+    border-radius: 30px;
+    padding: 18px;
+    box-shadow: 0 0 35px rgba(0,0,0,0.28);
+    animation: vendedorRespira 2.8s ease-in-out infinite;
+}
+
+.vendedor-card img {
+    width: 100%;
+    display: block;
+    border-radius: 24px;
+}
+
+.loja-dialogo {
+    position: relative;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 28px;
+    padding: 30px;
+    box-shadow: 0 0 35px rgba(0,0,0,0.22);
+}
+
+.loja-dialogo::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: 44%;
+    width: 28px;
+    height: 28px;
+    background: rgba(255,255,255,0.05);
+    border-left: 1px solid rgba(255,255,255,0.10);
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+    transform: rotate(45deg);
+}
+
+.loja-etiqueta {
+    display: inline-block;
+    color: #38bdf8;
+    background: rgba(56,189,248,0.11);
+    border: 1px solid rgba(56,189,248,0.28);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.loja-dialogo h1 {
+    color: white;
+    font-size: 42px;
+    margin: 0 0 14px;
+}
+
+.loja-dialogo p {
+    color: #cbd5e1;
+    font-size: 17px;
+    line-height: 30px;
+    margin: 0 0 18px;
+}
+
+.loja-saldo {
+    display: inline-block;
+    color: #facc15;
+    background: rgba(250,204,21,0.10);
+    border: 1px solid rgba(250,204,21,0.30);
+    border-radius: 16px;
+    padding: 12px 16px;
+}
+
+.loja-prateleira {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.loja-item {
+    position: relative;
+    overflow: hidden;
+}
+
+.loja-item::after {
+    content: "";
+    position: absolute;
+    inset: auto -40px -70px auto;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(56,189,248,0.16), transparent 68%);
+}
+
+.loja-item-topo {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.loja-item h2 {
+    margin: 8px 0 0;
+}
+
+.raridade {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.raridade-comum {
+    background: rgba(148,163,184,0.15);
+    color: #cbd5e1;
+}
+
+.raridade-raro {
+    background: rgba(56,189,248,0.15);
+    color: #7dd3fc;
+}
+
+.raridade-epico {
+    background: rgba(168,85,247,0.18);
+    color: #d8b4fe;
+}
+
+.loja-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+}
+
+.loja-tags span {
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+    color: #cbd5e1;
+    border-radius: 999px;
+    padding: 7px 11px;
+    font-size: 13px;
+}
+
+.preco {
+    font-size: 18px;
+}
+
+@keyframes vendedorRespira {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+.painel-alerta {
+    background: rgba(56,189,248,0.10);
+    border: 1px solid rgba(56,189,248,0.25);
+    color: #cbd5e1;
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 24px;
+}
+
+.avatar-preview {
+    width: 180px;
+    height: 180px;
+    border-radius: 24px;
+    background: #020617;
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media(max-width: 700px) {
+    .painel-container {
+        padding: 45px 6%;
+    }
+
+    .painel-titulo {
+        font-size: 34px;
+    }
+}

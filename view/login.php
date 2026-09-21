@@ -76,6 +76,10 @@ if (isset($_SESSION['estaLogado']) && $_SESSION['estaLogado'] === true) {
                     Não possui conta? Cadastre-se
                 </a>
 
+                <a href="recuperar_senha.php" class="cadastro-link">
+                    Esqueci minha senha
+                </a>
+
             </form>
 
         </div>

@@ -28,6 +28,14 @@
 
             <a href="lista_dupla.php">Lista Dupla</a>
 
+            <a href="pilha.php">Pilha</a>
+
+            <a href="fila_fifo.php">Fila FIFO</a>
+
+            <a href="fila_prioridade.php">Fila de Prioridade</a>
+
+            <a href="quiz.php">Quiz</a>
+
         </div>
 
         <div class="footer-info">

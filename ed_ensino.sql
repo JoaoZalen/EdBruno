@@ -1,64 +1,81 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Tempo de geração: 28/05/2026 às 05:52
--- Versão do servidor: 10.4.32-MariaDB
--- Versão do PHP: 8.2.12
+DROP DATABASE IF EXISTS ed_ensino;
+CREATE DATABASE ed_ensino CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE ed_ensino;
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+CREATE TABLE usuarios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL,
+  cpf VARCHAR(14) NOT NULL,
+  senha VARCHAR(255) NOT NULL,
+  foto VARCHAR(255) NOT NULL DEFAULT 'default.png',
+  moedas INT NOT NULL DEFAULT 0,
+  data_cadastro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_usuarios_email (email),
+  UNIQUE KEY uk_usuarios_cpf (cpf)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE recuperacao_senha (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT NOT NULL,
+  token_hash CHAR(64) NOT NULL,
+  expira_em DATETIME NOT NULL,
+  usado_em DATETIME NULL,
+  criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_token_hash (token_hash),
+  CONSTRAINT fk_rec_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+CREATE TABLE quiz_partidas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT NOT NULL,
+  acertos INT NOT NULL DEFAULT 0,
+  total_perguntas INT NOT NULL DEFAULT 0,
+  moedas_ganhas INT NOT NULL DEFAULT 0,
+  criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_quiz_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Banco de dados: `ed_ensino`
---
+CREATE TABLE itens (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  categoria VARCHAR(40) NOT NULL,
+  raridade VARCHAR(40) NOT NULL DEFAULT 'comum',
+  preco INT NOT NULL,
+  descricao VARCHAR(255) NOT NULL,
+  habilidade VARCHAR(80) NOT NULL,
+  imagem VARCHAR(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
+CREATE TABLE inventario (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT NOT NULL,
+  item_id INT NOT NULL,
+  equipado TINYINT(1) NOT NULL DEFAULT 0,
+  comprado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_inventario_usuario_item (usuario_id, item_id),
+  CONSTRAINT fk_inventario_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+  CONSTRAINT fk_inventario_item FOREIGN KEY (item_id) REFERENCES itens(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Estrutura para tabela `usuarios`
---
+CREATE TABLE moedas_movimentacoes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT NOT NULL,
+  valor INT NOT NULL,
+  tipo VARCHAR(20) NOT NULL,
+  motivo VARCHAR(255) NOT NULL,
+  criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_moedas_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `usuarios` (
-  `id` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `cpf` varchar(14) NOT NULL,
-  `senha` varchar(255) NOT NULL,
-  `foto` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Índices para tabelas despejadas
---
-
---
--- Índices de tabela `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD UNIQUE KEY `cpf` (`cpf`);
-
---
--- AUTO_INCREMENT para tabelas despejadas
---
-
---
--- AUTO_INCREMENT de tabela `usuarios`
---
-ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+INSERT INTO itens (nome, categoria, raridade, preco, descricao, habilidade, imagem) VALUES
+('Óculos de Foco', 'rosto', 'comum', 20, 'Dá foco para analisar alternativas difíceis.', 'Dica na pergunta', 'imgs/avatar/oculos_foco.svg'),
+('Cabelo Relâmpago', 'cabelo', 'comum', 25, 'Visual rápido para quem responde sem travar.', 'Animação extra', 'imgs/avatar/cabelo_relampago.svg'),
+('Chapéu da Lógica', 'chapeu', 'raro', 40, 'Ajuda a pensar em ponteiros e invariantes.', 'Eliminar alternativa', 'imgs/avatar/chapeu_logica.svg'),
+('Roupa do Tempo', 'roupa', 'raro', 45, 'Uma roupa para partidas longas de estruturas.', 'Tempo extra', 'imgs/avatar/roupa_tempo.svg'),
+('Amuleto das Moedas', 'acessorio', 'epico', 60, 'Aumenta a recompensa de partidas perfeitas.', 'Bônus de moedas', 'imgs/avatar/amuleto_moedas.svg'),
+('Máscara Binária', 'rosto', 'raro', 55, 'Mostra padrões escondidos em questões de código.', 'Revelar pista', 'imgs/avatar/mascara_binaria.svg'),
+('Capa da Recursão', 'roupa', 'epico', 80, 'Boa para voltar uma etapa e tentar de novo.', 'Voltar uma pergunta', 'imgs/avatar/capa_recursao.svg'),
+('Luvas de Ponteiro', 'acessorio', 'raro', 50, 'Ajuda a seguir referências entre nós encadeados.', 'Destacar ponteiros', 'imgs/avatar/luvas_ponteiro.svg'),
+('Botas de Busca', 'acessorio', 'comum', 35, 'Feitas para percorrer listas sem se perder.', 'Pular pergunta', 'imgs/avatar/botas_busca.svg'),
+('Coroa TAD', 'chapeu', 'epico', 90, 'Um item raro para dominar conceitos abstratos.', 'Bônus perfeito', 'imgs/avatar/coroa_tad.svg');

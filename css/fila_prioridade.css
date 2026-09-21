@@ -1,0 +1,110 @@
+/* Página Fila de Prioridade - segue o padrão visual das páginas didáticas */
+
+.pagina-banner {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #ffffff;
+    padding: 40px 20px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.pagina-banner h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.pagina-banner p {
+    font-size: 1.1rem;
+    max-width: 850px;
+    margin: 0 auto;
+    opacity: 0.9;
+}
+
+.pagina-conteudo {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px 40px 20px;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333333;
+}
+
+.secao {
+    margin-bottom: 35px;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.secao-titulo {
+    font-size: 1.6rem;
+    color: #1e3c72;
+    border-left: 5px solid #2a5298;
+    padding-left: 12px;
+    margin-bottom: 15px;
+}
+
+.destaque {
+    background-color: #eef4fc;
+    border-left: 4px solid #2a5298;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.secao-imagem {
+    background: #f8fafc;
+    border: 1px dashed #2a5298;
+    border-radius: 8px;
+    color: #1e3c72;
+    font-family: Consolas, monospace;
+    margin: 25px 0;
+    padding: 18px;
+    text-align: center;
+    white-space: pre-wrap;
+}
+
+.bloco-codigo {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.codigo-label {
+    background-color: #2d2d2d;
+    color: #9cdcfe;
+    padding: 8px 15px;
+    font-size: 0.85rem;
+    font-family: monospace;
+    font-weight: bold;
+    border-bottom: 1px solid #3c3c3c;
+}
+
+pre {
+    margin: 0;
+    padding: 15px;
+    overflow-x: auto;
+}
+
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 0.95rem;
+}
+
+.divisor {
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 40px 0;
+}
+
+@media (max-width: 768px) {
+    .pagina-banner h1 {
+        font-size: 1.8rem;
+    }
+    .secao-titulo {
+        font-size: 1.3rem;
+    }
+}
