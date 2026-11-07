@@ -10,9 +10,10 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro - ED Ensino</title>
 
-    <link rel="stylesheet" href="../css/header.css">
-    <link rel="stylesheet" href="../css/footer.css">
-    <link rel="stylesheet" href="../css/cadastro.css">
+    <link rel="stylesheet" href="../css/base.css?v=2">
+    <link rel="stylesheet" href="../css/header.css?v=5">
+    <link rel="stylesheet" href="../css/footer.css?v=3">
+    <link rel="stylesheet" href="../css/auth.css?v=1">
 
 </head>
 

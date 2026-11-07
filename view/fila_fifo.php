@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fila Encadeada FIFO - ED Ensino</title>
-    <link rel="stylesheet" href="../css/header.css?v=2">
-    <link rel="stylesheet" href="../css/footer.css?v=2">
-    <link rel="stylesheet" href="../css/fila_fifo.css?v=1">
+    <link rel="stylesheet" href="../css/base.css?v=2">
+    <link rel="stylesheet" href="../css/header.css?v=5">
+    <link rel="stylesheet" href="../css/footer.css?v=3">
+    <link rel="stylesheet" href="../css/conteudo.css?v=2">
 </head>
 <body>
 <?php include 'header.php'; ?>
@@ -15,6 +16,10 @@
 <div class="pagina-banner">
     <h1>Fila Encadeada FIFO</h1>
     <p>Compreenda o funcionamento do princípio First-In, First-Out (FIFO), a gestão de ponteiros de início e fim, as operações fundamentais e a implementação prática em C#.</p>
+    <div class="banner-acoes">
+        <a href="simulador.php?ed=fila_fifo" class="btn btn-sucesso">Simular Fila FIFO</a>
+        <a href="home.php#trilha" class="btn btn-contorno">Ver trilha</a>
+    </div>
 </div>
 
 <main class="pagina-conteudo">
@@ -194,21 +199,21 @@ namespace EstruturaDeDados
 
     <section class="secao">
         <h2 class="secao-titulo">Vantagens e Desvantagens</h2>
-        <table class="tabela-comparativa" style="width:100%; border-collapse: collapse; margin-top: 15px;">
+        <table class="tabela-comparativa">
             <thead>
-                <tr style="background-color: #f2f2f2; text-align: left;">
-                    <th style="padding: 8px; border: 1px solid #ddd;">Vantagens</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">Desvantagens</th>
+                <tr>
+                    <th>Vantagens</th>
+                    <th>Desvantagens</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;">Alocação dinâmica: cresce e diminui conforme a necessidade sem limite fixo.</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">Gasto adicional de memória para armazenar o ponteiro de referência em cada nó.</td>
+                    <td>Alocação dinâmica: cresce e diminui conforme a necessidade sem limite fixo.</td>
+                    <td>Gasto adicional de memória para armazenar o ponteiro de referência em cada nó.</td>
                 </tr>
                 <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;">Operações de inserção e remoção extremamente rápidas e de tempo constante $O(1)$.</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">Acesso aleatório não permitido (não é possível acessar o n-ésimo elemento diretamente por índice).</td>
+                    <td>Operações de inserção e remoção extremamente rápidas e de tempo constante $O(1)$.</td>
+                    <td>Acesso aleatório não permitido (não é possível acessar o n-ésimo elemento diretamente por índice).</td>
                 </tr>
             </tbody>
         </table>
@@ -238,6 +243,15 @@ namespace EstruturaDeDados
         <h2 class="secao-titulo">Conclusão</h2>
         <p>A Fila Encadeada FIFO é uma estrutura indispensável na ciência da computação para organizar tarefas sequenciais onde a ordem de chegada deve ser estritamente respeitada. Com alocação dinâmica e operações de inserção e remoção com complexidade $O(1)$, ela oferece alta performance para problemas de processamento em ordem cronológica.</p>
     </section>
+
+    <aside class="chamada-simulador">
+        <div>
+            <h3>Agora veja na prática</h3>
+            <p>Insira e remova valores na Fila FIFO e acompanhe cada ponteiro mudar.</p>
+        </div>
+        <a href="simulador.php?ed=fila_fifo" class="btn btn-sucesso">Abrir simulador</a>
+    </aside>
+
 </main>
 
 <?php include 'footer.php'; ?>

@@ -1,0 +1,165 @@
+/* =============================================
+   avatar.css — Animações do avatar em camadas
+   Carregado pelo header.php (vale para todas as páginas).
+   Os elementos .av-* ficam dentro do SVG gerado por view/avatar.php
+   ============================================= */
+
+.avatar {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+/* partes que só aparecem ao provar/equipar */
+.av-oculta { display: none; }
+
+/* no SVG, a origem das transformações é a própria peça */
+.avatar .av-olhos,
+.avatar .av-moeda,
+.avatar .av-faisca,
+.avatar .av-brilho,
+.avatar .av-camada {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+/* ---- Respiração: o personagem sobe e desce de leve ---- */
+.avatar--inteiro .av-personagem {
+    animation: avRespirar 3.6s ease-in-out infinite;
+}
+
+@keyframes avRespirar {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-3px); }
+}
+
+/* ---- Piscar ---- */
+.av-olhos { animation: avPiscar 4.8s infinite; }
+
+@keyframes avPiscar {
+    0%, 93%, 100% { transform: scaleY(1); }
+    95.5%         { transform: scaleY(.1); }
+}
+
+/* ---- Aura (itens raros e épicos) ---- */
+.av-aura { animation: avAura 3s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+
+@keyframes avAura {
+    0%, 100% { opacity: .75; transform: scale(.96); }
+    50%      { opacity: 1;   transform: scale(1.04); }
+}
+
+.av-raios {
+    transform-box: view-box;
+    transform-origin: 120px 150px;
+    animation: avGirar 22s linear infinite;
+}
+
+@keyframes avGirar { to { transform: rotate(360deg); } }
+
+/* ---- Animações de cada item ---- */
+
+/* capa balançando (presa nos ombros) */
+.av-capa {
+    transform-box: view-box;
+    transform-origin: 120px 158px;
+    animation: avCapa 3.4s ease-in-out infinite;
+}
+
+@keyframes avCapa {
+    0%, 100% { transform: skewX(0deg) scaleX(1); }
+    50%      { transform: skewX(-3deg) scaleX(1.03); }
+}
+
+/* borla do capelo balançando */
+.av-pendulo {
+    transform-box: view-box;
+    transform-origin: 120px 54px;
+    animation: avPendulo 2.8s ease-in-out infinite;
+}
+
+@keyframes avPendulo {
+    0%, 100% { transform: rotate(0deg); }
+    50%      { transform: rotate(-7deg); }
+}
+
+/* brilhos da coroa */
+.av-brilho { animation: avBrilho 1.8s ease-in-out infinite; }
+.av-brilho--2 { animation-delay: .6s; }
+.av-brilho--3 { animation-delay: 1.2s; }
+
+@keyframes avBrilho {
+    0%, 100% { opacity: 0;  transform: scale(.3) rotate(0deg); }
+    50%      { opacity: 1;  transform: scale(1) rotate(45deg); }
+}
+
+/* raio do cabelo piscando */
+.av-faisca { animation: avFaisca 2.2s steps(1) infinite; }
+
+@keyframes avFaisca {
+    0%, 70%, 100% { opacity: 1; }
+    74%, 80%      { opacity: .25; }
+    77%           { opacity: 1; }
+}
+
+/* reflexo correndo nas lentes */
+.av-reflexo { animation: avReflexo 3.2s ease-in-out infinite; }
+
+@keyframes avReflexo {
+    0%, 60%, 100% { opacity: .9; }
+    75%           { opacity: .2; }
+}
+
+/* números da máscara trocando de brilho */
+.av-binario { animation: avBinario 1.4s steps(2) infinite; }
+
+@keyframes avBinario {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: .55; }
+}
+
+/* ponteiro do relógio girando */
+.av-ponteiro-relogio {
+    transform-box: view-box;
+    transform-origin: 120px 211px;
+    animation: avGirar 6s linear infinite;
+}
+
+/* moeda girando de vez em quando */
+.av-moeda { animation: avMoeda 3.5s ease-in-out infinite; }
+
+@keyframes avMoeda {
+    0%, 70%, 100% { transform: scaleX(1); }
+    80%           { transform: scaleX(.12); }
+    90%           { transform: scaleX(1); }
+}
+
+/* setas das luvas pulsando */
+.av-pulso { animation: avPulso 1.6s ease-in-out infinite; }
+
+@keyframes avPulso {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: .35; }
+}
+
+/* ---- Item recém-equipado: cai no personagem com um "pop" ---- */
+.av-recem { animation: avEncaixar .9s cubic-bezier(.2, 1.6, .4, 1) both; }
+
+@keyframes avEncaixar {
+    0%   { opacity: 0; transform: translateY(-40px) scale(1.4); }
+    60%  { opacity: 1; }
+    100% { opacity: 1; transform: none; }
+}
+
+/* ---- Provando um item (provador) ---- */
+.av-provando { animation: avProvar .45s cubic-bezier(.2, 1.4, .4, 1) both; }
+
+@keyframes avProvar {
+    from { opacity: 0; transform: scale(1.18); }
+    to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .avatar * { animation: none !important; }
+}

@@ -1,5 +1,5 @@
 <?php
-require_once("../model/usuario.php");
+require_once("../model/Usuario.php");
 session_start();
 
 if (!isset($_SESSION['estaLogado']) || $_SESSION['estaLogado'] != true) {

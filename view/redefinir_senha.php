@@ -5,14 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redefinir Senha - ED Ensino</title>
-    <link rel="stylesheet" href="../css/header.css?v=2">
-    <link rel="stylesheet" href="../css/footer.css?v=2">
-    <link rel="stylesheet" href="../css/painel.css?v=2">
+    <link rel="stylesheet" href="../css/base.css?v=2">
+    <link rel="stylesheet" href="../css/header.css?v=5">
+    <link rel="stylesheet" href="../css/footer.css?v=3">
+    <link rel="stylesheet" href="../css/painel.css?v=4">
 </head>
 <body>
 <?php include 'header.php'; ?>
 <main class="painel-container">
-    <section class="painel-card" style="max-width: 620px; margin: auto;">
+    <section class="painel-card painel-card--estreito">
         <h1 class="painel-titulo">Redefinir Senha</h1>
         <?php if(isset($_SESSION['Error'])) { ?><div class="painel-alerta"><?php echo $_SESSION['Error']; unset($_SESSION['Error']); ?></div><?php } ?>
         <form class="painel-form" method="post" action="../processamento/processamento.php">

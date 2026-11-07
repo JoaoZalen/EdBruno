@@ -1,6 +1,6 @@
 <?php
 require_once("../model/banco.php"); //puxa os métodos do banco
-require_once("../model/usuario.php"); //puxa os métodos do usuario
+require_once("../model/Usuario.php"); //puxa os métodos do usuario
 
 
 class Controlador{
@@ -14,8 +14,8 @@ class Controlador{
 
     public function getUser($email, $senha)
     {
-        $user = $this->banco->getUser($email, $senha);
-        if ($user == false) 
+        $user = $this->banco->autenticar($email, $senha);
+        if ($user === null)
         {
             return null;
         }

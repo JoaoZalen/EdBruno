@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220">
-  <rect width="220" height="220" rx="34" fill="#0f172a"/>
-  <path d="M61 188c9-68 89-90 132-116-32 48-27 82-14 116z" fill="#7c3aed"/>
-  <path d="M78 172c14-32 50-54 86-75" fill="none" stroke="#c4b5fd" stroke-width="8" stroke-linecap="round"/>
-  <path d="M61 80c22-27 66-30 94-7" fill="none" stroke="#facc15" stroke-width="9" stroke-linecap="round"/>
-  <path d="M154 73l-2-25 25 10" fill="#facc15"/>
-</svg>
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='32.68 131.68 174.64 174.64'><defs><radialGradient id='f' cx='.5' cy='.35' r='.75'><stop offset='0' stop-color='#fefce8'/><stop offset='1' stop-color='#fde68a'/></radialGradient></defs><rect x='32.68' y='131.68' width='174.64' height='174.64' rx='27.9424' fill='url(#f)'/><rect x='34.863' y='133.863' width='170.274' height='170.274' rx='27.9424' fill='none' stroke='#eab308' stroke-width='4.366'/><g class='av-capa'><path d='M86 158 Q58 214 50 276 Q120 290 190 276 Q182 214 154 158 Z' fill='#1d4ed8'/><path d='M86 158 Q62 214 56 272 Q64 275 70 270 Q76 212 96 164 Z' fill='#059669'/><path d='M154 158 Q178 214 184 272 Q176 275 170 270 Q164 212 144 164 Z' fill='#059669'/><g fill='none' stroke='#93c5fd' stroke-width='2' opacity='.75'><circle cx='79' cy='246' r='11'/><circle cx='79' cy='246' r='6.5'/><circle cx='79' cy='246' r='2'/><circle cx='161' cy='246' r='11'/><circle cx='161' cy='246' r='6.5'/><circle cx='161' cy='246' r='2'/></g></g><path d='M90 156 L104 174 L120 163 L136 174 L150 156 Q120 148 90 156 Z' fill='#1e40af'/><circle cx='120' cy='167' r='7' fill='#eab308' stroke='#ca8a04' stroke-width='2'/><path d='M120 167 m-3.2 0 a3.2 3.2 0 1 1 3.2 3.2' stroke='#a16207' stroke-width='1.6' fill='none' stroke-linecap='round'/></svg>

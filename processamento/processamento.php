@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once("../model/banco.php");
-require_once("../model/usuario.php");
+require_once("../model/Usuario.php");
 
 $banco = new banco();
 $acao = $_POST['acao'] ?? $_GET['acao'] ?? '';
@@ -103,7 +103,9 @@ if ($acao === 'perfil') {
     if ($nome === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || $cpf === '') {
         voltarComErro('perfil.php', 'Confira os dados do perfil.');
     }
-    $banco->atualizarPerfil($usuarioId, $nome, $email, $cpf);
+    if (!$banco->atualizarPerfil($usuarioId, $nome, $email, $cpf)) {
+        voltarComErro('perfil.php', 'Esse e-mail ou CPF já está em uso por outra conta.');
+    }
     criarSessaoUsuario($banco->getUserById($usuarioId));
     $_SESSION['Sucesso'] = 'Perfil atualizado.';
     header('Location:../view/perfil.php');
@@ -286,9 +288,30 @@ if ($acao === 'comprar_item') {
     exit;
 }
 
+/* Para onde voltar depois de equipar/remover (só páginas conhecidas) */
+function paginaDeVolta(): string
+{
+    $paginas = ['inventario' => 'inventario.php', 'perfil' => 'perfil.php', 'loja' => 'loja.php'];
+    return $paginas[$_POST['voltar'] ?? ''] ?? 'inventario.php';
+}
+
 if ($acao === 'equipar_item') {
-    $_SESSION['MensagemInventario'] = $banco->equiparItem($usuarioId, (int)($_POST['item_id'] ?? 0)) ? 'Item equipado.' : 'Item indisponível.';
-    header('Location:../view/inventario.php');
+    require_once("../model/avatar_itens.php");
+    $item = $banco->equiparItem($usuarioId, (int)($_POST['item_id'] ?? 0));
+    if ($item) {
+        $_SESSION['MensagemInventario'] = $item['nome'] . ' equipado!';
+        $_SESSION['AvatarRecem'] = chaveDoItem($item);   // a página anima a chegada do item
+    } else {
+        $_SESSION['MensagemInventario'] = 'Item indisponível.';
+    }
+    header('Location:../view/' . paginaDeVolta());
+    exit;
+}
+
+if ($acao === 'desequipar_item') {
+    $ok = $banco->desequiparItem($usuarioId, (int)($_POST['item_id'] ?? 0));
+    $_SESSION['MensagemInventario'] = $ok ? 'Item removido do avatar.' : 'Item indisponível.';
+    header('Location:../view/' . paginaDeVolta());
     exit;
 }
 

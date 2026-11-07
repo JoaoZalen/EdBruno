@@ -1,0 +1,157 @@
+/* =============================================
+   auth.css — Login e Cadastro
+   As duas telas têm o mesmo layout, por isso
+   compartilham este arquivo.
+   Depende de: base.css
+   ============================================= */
+
+.container-login,
+.container-cadastro {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 56px 20px;
+}
+
+.login-box,
+.cadastro-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    max-width: 960px;
+    border: 1px solid var(--borda);
+    border-radius: 24px;
+    background: var(--branco);
+    box-shadow: var(--sombra-alta);
+    overflow: hidden;
+    animation: surgir .4s ease both;
+}
+
+/* ---- Lado esquerdo: apresentação (azul) ---- */
+.left-login,
+.left-cadastro {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 48px 44px;
+    background:
+        radial-gradient(ellipse 80% 60% at 0% 0%, rgba(255, 255, 255, .14), transparent 60%),
+        linear-gradient(160deg, var(--azul) 0%, #1e3a8a 100%);
+    color: #dbeafe;
+    overflow: hidden;
+}
+
+/* desenho de nós encadeados ao fundo */
+.left-login::before,
+.left-cadastro::before {
+    content: '';
+    position: absolute;
+    top: 48px;
+    left: 44px;
+    right: 44px;
+    height: 54px;
+    background:
+        linear-gradient(#fff, #fff) 0 50% / 100% 2px no-repeat;
+    opacity: .2;
+}
+
+.left-login::after,
+.left-cadastro::after {
+    content: '';
+    position: absolute;
+    top: 48px;
+    left: 44px;
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, .55);
+    background: rgba(255, 255, 255, .08);
+    box-shadow:
+        110px 0 0 -2px rgba(255, 255, 255, .06), 110px 0 0 0 rgba(255, 255, 255, .35),
+        220px 0 0 -2px rgba(255, 255, 255, .06), 220px 0 0 0 rgba(255, 255, 255, .25);
+}
+
+.left-login h1,
+.left-cadastro h1 {
+    color: var(--branco);
+    font-size: clamp(28px, 3.4vw, 38px);
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.left-login h1 span,
+.left-cadastro h1 span {
+    display: block;
+    color: #a7f3d0;  /* verde suave sobre o azul */
+}
+
+.left-login p,
+.left-cadastro p {
+    margin-top: 14px;
+    max-width: 340px;
+    font-size: 16px;
+}
+
+/* ---- Lado direito: formulário ---- */
+.right-login,
+.right-cadastro {
+    padding: 48px 44px;
+}
+
+.right-login h2,
+.right-cadastro h2 {
+    margin-bottom: 24px;
+    font-size: 26px;
+}
+
+.input-group { margin-bottom: 16px; }
+
+.mensagem-erro { margin-bottom: 18px; }
+
+.btn-entrar,
+.btn-cadastrar {
+    width: 100%;
+    height: 50px;
+    margin-top: 8px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--azul);
+    color: var(--branco);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s, transform .2s, box-shadow .2s;
+}
+
+.btn-entrar:hover,
+.btn-cadastrar:hover {
+    background: var(--azul-escuro);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, .3);
+    transform: translateY(-1px);
+}
+
+.cadastro-link,
+.login-link {
+    display: block;
+    margin-top: 14px;
+    color: var(--texto-suave);
+    font-size: 14px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.cadastro-link:hover,
+.login-link:hover { color: var(--azul); text-decoration: underline; }
+
+/* ---- Responsivo ---- */
+@media (max-width: 780px) {
+    .login-box,
+    .cadastro-box { grid-template-columns: 1fr; }
+
+    .left-login,
+    .left-cadastro { padding: 120px 28px 32px; }
+
+    .right-login,
+    .right-cadastro { padding: 32px 28px 36px; }
+}

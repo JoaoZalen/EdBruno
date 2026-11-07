@@ -1,0 +1,1038 @@
+/* =============================================
+   simulador.css — Simulador de Estruturas
+   Depende de: base.css
+
+   A página funciona como um "app": barra de ferramentas em cima,
+   palco ocupando todo o resto e um painel lateral recolhível.
+
+   Cores dos estados dos nós:
+   - amarelo  → nó sendo visitado (atual)
+   - verde    → nó novo
+   - vermelho → nó sendo removido
+   - azul     → nó encontrado / retornado
+   ============================================= */
+
+/* ---- Cursores pretos do palco (SVG com contorno branco) ---- */
+:root {
+    --cursor-seta: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2 L4 19 L8.5 14.8 L11.6 21.6 L14.4 20.4 L11.4 13.7 L17.6 13.5 Z' fill='%230b1220' stroke='white' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 4 2, default;
+    --cursor-mover: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M12 1 L16 5.5 H13.3 V10.7 H18.5 V8 L23 12 L18.5 16 V13.3 H13.3 V18.5 H16 L12 23 L8 18.5 H10.7 V13.3 H5.5 V16 L1 12 L5.5 8 V10.7 H10.7 V5.5 H8 Z' fill='%230b1220' stroke='white' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E") 12 12, move;
+}
+
+/* a página do simulador não rola: o palco ocupa a altura da tela */
+body.pagina-simulador {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+.sim-app {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    background: var(--fundo);
+}
+
+/* em tela cheia o próprio app ocupa a tela toda */
+.sim-app:fullscreen { width: 100vw; height: 100vh; }
+.sim-app::backdrop  { background: var(--fundo); }
+
+/* ============================================
+   BARRA DE FERRAMENTAS
+   ============================================ */
+.sim-barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 16px;
+    background: var(--branco);
+    border-bottom: 1px solid var(--borda);
+    flex-wrap: wrap;
+}
+
+.sim-abas {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--borda);
+    border-radius: 10px;
+    background: var(--fundo);
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: none;
+}
+
+.sim-aba {
+    padding: 7px 13px;
+    border-radius: 7px;
+    color: var(--texto-suave);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background .2s, color .2s;
+}
+
+.sim-aba:hover { background: var(--branco); color: var(--tinta); }
+.sim-aba.ativa { background: var(--azul); color: var(--branco); }
+
+.sim-ferramentas {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.sim-ferramenta {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--borda-forte);
+    border-radius: 8px;
+    background: var(--branco);
+    color: var(--texto);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color .2s, color .2s, background .2s;
+}
+
+.sim-ferramenta--texto { font-size: 13px; }
+
+.sim-ferramenta:hover { border-color: var(--azul); color: var(--azul); }
+
+.sim-ferramenta.ativo { background: var(--azul-claro); border-color: var(--azul-borda); color: var(--azul-escuro); }
+
+.sim-ferramenta--destaque {
+    border-color: var(--azul);
+    background: var(--azul);
+    color: var(--branco);
+    font-size: 13px;
+}
+
+.sim-ferramenta--destaque:hover { background: var(--azul-escuro); color: var(--branco); }
+
+.sim-separador { width: 1px; height: 22px; margin: 0 4px; background: var(--borda); }
+
+/* interruptor "Passo a passo" */
+.sim-interruptor {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--texto);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+}
+
+.sim-interruptor input {
+    appearance: none;
+    position: relative;
+    width: 36px;
+    height: 20px;
+    border-radius: 999px;
+    background: var(--borda-forte);
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.sim-interruptor input::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--branco);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+    transition: transform .2s;
+}
+
+.sim-interruptor input:checked { background: var(--verde); }
+.sim-interruptor input:checked::after { transform: translateX(16px); }
+
+/* ============================================
+   CORPO: PALCO + PAINEL
+   ============================================ */
+.sim-corpo {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    flex: 1;
+    min-height: 0;
+    transition: grid-template-columns .3s ease;
+}
+
+.painel-oculto .sim-corpo { grid-template-columns: minmax(0, 1fr) 0px; }
+.painel-oculto .sim-painel { opacity: 0; pointer-events: none; }
+
+/* ============================================
+   PALCO (área infinita)
+   ============================================ */
+.sim-palco {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--fundo);
+    background-image: radial-gradient(var(--borda-forte) 1px, transparent 1px);
+    background-size: 24px 24px;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+}
+
+.sim-palco.movendo { cursor: grabbing; }
+
+.sim-mundo {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    transform-origin: 0 0;
+}
+
+.sim-mundo.suave { transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
+
+.sim-links {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.sim-nos { position: absolute; left: 0; top: 0; }
+
+/* ---- Informações (canto superior esquerdo) ---- */
+.sim-info {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 3;
+    padding: 6px 12px;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .92);
+    color: var(--texto-suave);
+    font-family: var(--fonte-codigo);
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.sim-info b { color: var(--azul-escuro); font-weight: 600; }
+.sim-info .sep { margin: 0 8px; color: var(--borda-forte); }
+
+/* ---- Dica de uso (canto superior direito) ---- */
+.sim-dica {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 3;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 14px;
+    max-width: 430px;
+    padding: 8px 36px 8px 14px;
+    border: 1px solid var(--azul-borda);
+    border-radius: 10px;
+    background: rgba(239, 246, 255, .95);
+    color: var(--texto-suave);
+    font-size: 12px;
+    cursor: default;
+}
+
+.sim-dica[hidden] { display: none; }
+
+.sim-dica b { color: var(--azul-escuro); }
+
+.sim-dica button {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    width: 22px;
+    height: 22px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--texto-fraco);
+    font-size: 16px;
+    line-height: 1;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.sim-dica button:hover { background: var(--branco); color: var(--tinta); }
+
+.sim-vazio {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--texto-fraco);
+    font-size: 15px;
+    text-align: center;
+    pointer-events: none;
+}
+
+.sim-vazio small { font-size: 13px; }
+.sim-vazio[hidden] { display: none; }
+
+/* ============================================
+   NÓS
+   .sim-ancora fica no ponto (x, y) e se move com
+   transição; a caixa fica centralizada nesse ponto.
+   ============================================ */
+.sim-ancora {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: transform .55s cubic-bezier(.2, .8, .2, 1), opacity .3s;
+    cursor: grab;
+    touch-action: none;
+}
+
+.sim-ancora.sem-transicao,
+.sim-ancora.arrastando { transition: none; }
+
+.sim-ancora.arrastando { cursor: grabbing; z-index: 5; }
+
+.sim-no-caixa {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+    transition: transform .3s, opacity .35s;
+}
+
+.sim-ancora.saindo .sim-no-caixa { opacity: 0; transform: translate(-50%, -50%) scale(.5); }
+
+.sim-ancora.arrastando .sim-no {
+    box-shadow: 0 14px 30px rgba(15, 23, 42, .18);
+    transform: scale(1.05);
+}
+
+.sim-no {
+    display: flex;
+    align-items: stretch;
+    border: 2px solid var(--azul);
+    border-radius: 10px;
+    background: var(--branco);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .08);
+    overflow: hidden;
+    white-space: nowrap;
+    transition: border-color .25s, box-shadow .25s, background .25s, transform .25s;
+}
+
+.sim-valor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    height: 50px;
+    padding: 0 10px;
+    color: var(--tinta);
+    font-family: var(--fonte-codigo);
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.sim-valor.trocou { animation: trocou .7s ease; }
+
+@keyframes trocou {
+    0%   { background: var(--amarelo-claro); transform: scale(1.3); }
+    100% { background: transparent; transform: none; }
+}
+
+.sim-ptr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    border-left: 1px solid var(--borda);
+    background: var(--fundo);
+    color: var(--azul);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.sim-ptr:first-child { border-left: 0; border-right: 1px solid var(--borda); }
+.sim-ptr.nulo { color: var(--texto-fraco); font-weight: 400; }
+
+.sim-ptr[data-ptr="ant"] { color: var(--verde); }
+
+/* pino: indica nó movido à mão */
+.sim-ancora.fixado .sim-no::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 9px;
+    height: 9px;
+    border: 2px solid var(--branco);
+    border-radius: 50%;
+    background: var(--azul);
+}
+
+.sim-ancora.fixado .sim-no { position: relative; overflow: visible; }
+
+.sim-indice {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--texto-fraco);
+    font-family: var(--fonte-codigo);
+    font-size: 11px;
+}
+
+/* ---- Etiquetas de ponteiro (cabeça, topo, raiz, atual...) ---- */
+.sim-tags {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.sim-tag {
+    padding: 1px 8px;
+    border: 1px solid var(--azul-borda);
+    border-radius: 6px;
+    background: var(--azul-claro);
+    color: var(--azul-escuro);
+    font-family: var(--fonte-codigo);
+    font-size: 11px;
+    font-weight: 600;
+    animation: tagEntra .25s ease;
+}
+
+.sim-tag::after { content: ' ↓'; }
+
+.sim-tag--atual {
+    border-color: var(--amarelo-borda);
+    background: var(--amarelo-claro);
+    color: var(--amarelo-texto);
+}
+
+.sim-tag--extra {
+    border-color: var(--borda-forte);
+    background: var(--branco);
+    color: var(--texto-suave);
+}
+
+@keyframes tagEntra {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* pilha: etiquetas à esquerda do nó */
+[data-estrutura="pilha"] .sim-tags {
+    top: 50%;
+    right: calc(100% + 10px);
+    bottom: auto;
+    left: auto;
+    flex-direction: row;
+    transform: translateY(-50%);
+}
+
+[data-estrutura="pilha"] .sim-tag::after { content: ' →'; }
+[data-estrutura="pilha"] .sim-valor { min-width: 110px; }
+
+/* árvore: nó um pouco mais compacto */
+[data-estrutura="arvore_binaria"] .sim-valor { min-width: 44px; height: 44px; font-size: 17px; }
+[data-estrutura="arvore_binaria"] .sim-ptr { width: 20px; font-size: 12px; }
+[data-estrutura="arvore_binaria"] .sim-no { border-radius: 12px; }
+
+/* ---- Estados ---- */
+.sim-ancora.atual .sim-no {
+    border-color: var(--amarelo);
+    background: var(--amarelo-claro);
+    box-shadow: 0 0 0 4px rgba(234, 179, 8, .22);
+    transform: translateY(-3px);
+}
+
+.sim-ancora.novo .sim-no {
+    border-color: var(--verde);
+    background: var(--verde-claro);
+    box-shadow: 0 0 0 4px rgba(5, 150, 105, .16);
+}
+
+.sim-ancora.alvo .sim-no {
+    border-color: var(--vermelho);
+    background: var(--vermelho-claro);
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, .16);
+    animation: tremer .4s ease;
+}
+
+.sim-ancora.visitado:not(.atual) .sim-no {
+    border-color: var(--azul);
+    background: var(--azul-claro);
+}
+
+.sim-ancora.achado .sim-no {
+    border-color: var(--azul);
+    background: var(--azul);
+    box-shadow: 0 0 0 6px rgba(37, 99, 235, .2);
+    transform: scale(1.08);
+}
+
+.sim-ancora.achado .sim-valor { color: var(--branco); }
+.sim-ancora.achado .sim-ptr { background: rgba(255, 255, 255, .15); border-color: rgba(255, 255, 255, .25); color: #dbeafe; }
+
+/* ---- Prioridade: 1 (calma) até 5 (urgente) ---- */
+.sim-prio {
+    display: flex;
+    align-items: center;
+    padding: 0 7px;
+    border-left: 1px solid var(--borda);
+    font-family: var(--fonte-codigo);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.sim-prio[data-p="1"] { color: var(--texto-fraco); }
+.sim-prio[data-p="2"] { color: var(--azul); }
+.sim-prio[data-p="3"] { color: var(--verde); }
+.sim-prio[data-p="4"] { color: var(--amarelo-texto); background: var(--amarelo-claro); }
+.sim-prio[data-p="5"] { color: var(--vermelho); background: var(--vermelho-claro); }
+
+/* ============================================
+   LIGAÇÕES (linhas SVG)
+   ============================================ */
+.sim-link {
+    fill: none;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    transition: opacity .3s;
+}
+
+.sim-link--prox,
+.sim-link--esq,
+.sim-link--dir { stroke: var(--azul); marker-end: url(#seta-azul); }
+
+.sim-link--ant { stroke: var(--verde); marker-end: url(#seta-verde); }
+
+/* ligação sendo criada: desenha do começo ao fim */
+.sim-link.formando {
+    stroke-dasharray: 100;
+    animation: desenharLinha .5s ease-out both;
+}
+
+@keyframes desenharLinha {
+    from { stroke-dashoffset: 100; }
+    to   { stroke-dashoffset: 0; }
+}
+
+/* ligação percorrida: acende em amarelo com tracejado correndo */
+.sim-link.percorrido {
+    stroke: #ca8a04;
+    stroke-width: 3.4;
+    stroke-dasharray: 8 6;
+    marker-end: url(#seta-amarela);
+    animation: correr .5s linear infinite;
+}
+
+@keyframes correr { to { stroke-dashoffset: -14; } }
+
+.sim-link.sumindo { opacity: .25; }
+
+/* ============================================
+   NARRAÇÃO (rodapé do palco)
+   ============================================ */
+.sim-narracao {
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: min(760px, calc(100% - 32px));
+    padding: 12px 14px 12px 44px;
+    border: 1px solid var(--azul-borda);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: var(--sombra-alta);
+    color: var(--tinta);
+    font-size: 15px;
+    transform: translateX(-50%);
+    cursor: default;
+}
+
+.sim-narracao::before {
+    content: 'i';
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    border-radius: 50%;
+    background: var(--azul);
+    color: var(--branco);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.sim-narracao-texto { flex: 1; }
+
+.sim-narracao--erro {
+    border-color: var(--vermelho-borda);
+    background: rgba(254, 242, 242, .97);
+    color: #991b1b;
+}
+
+.sim-narracao--erro::before { content: '!'; background: var(--vermelho); }
+
+.sim-proximo {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--verde);
+    color: var(--branco);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    animation: pulsar 1.4s ease-in-out infinite;
+}
+
+.sim-proximo[hidden] { display: none; }
+.sim-proximo:hover { background: var(--verde-escuro); }
+
+@keyframes pulsar {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, .35); }
+    50%      { box-shadow: 0 0 0 7px rgba(5, 150, 105, 0); }
+}
+
+/* ============================================
+   PAINEL LATERAL
+   ============================================ */
+.sim-painel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    padding: 14px;
+    overflow-y: auto;
+    background: var(--branco);
+    border-left: 1px solid var(--borda);
+    transition: opacity .2s;
+}
+
+.sim-card {
+    padding: 16px;
+    border: 1px solid var(--borda);
+    border-radius: var(--raio);
+    background: var(--branco);
+}
+
+.sim-card h2 { margin-bottom: 12px; font-size: 14px; }
+
+.sim-card--intro { background: var(--fundo); }
+
+.sim-card-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.sim-card--intro h1 { font-size: 17px; }
+
+.sim-card--intro p {
+    margin-top: 6px;
+    color: var(--texto-suave);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.sim-regra {
+    flex-shrink: 0;
+    padding: 3px 9px;
+    border: 1px solid var(--azul-borda);
+    border-radius: 999px;
+    background: var(--azul-claro);
+    color: var(--azul-escuro);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ---- Campos ---- */
+.sim-campos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.sim-campos label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: var(--texto-suave);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.sim-campos input,
+.sim-campos select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--borda-forte);
+    border-radius: 8px;
+    background: var(--branco);
+    color: var(--tinta);
+    font-family: var(--fonte-codigo);
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.sim-campos input:focus,
+.sim-campos select:focus {
+    border-color: var(--azul);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+}
+
+.tremer { border-color: var(--vermelho) !important; animation: tremer .4s ease; }
+
+/* ---- Botões: verde adiciona, vermelho remove, azul consulta ---- */
+.sim-operacoes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.sim-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    padding: 8px 10px;
+    border: 1px solid;
+    border-radius: 8px;
+    background: var(--branco);
+    font-size: 12.5px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background .2s, transform .2s;
+}
+
+.sim-btn small { font-family: var(--fonte-codigo); font-size: 10.5px; font-weight: 400; opacity: .75; }
+
+.sim-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.sim-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.sim-btn--add { border-color: var(--verde-borda); background: var(--verde-claro); color: var(--verde-escuro); }
+.sim-btn--add:hover:not(:disabled) { background: #d1fae5; }
+
+.sim-btn--rem { border-color: var(--vermelho-borda); background: var(--vermelho-claro); color: #b91c1c; }
+.sim-btn--rem:hover:not(:disabled) { background: #fee2e2; }
+
+.sim-btn--ver { border-color: var(--azul-borda); background: var(--azul-claro); color: var(--azul-escuro); }
+.sim-btn--ver:hover:not(:disabled) { background: #dbeafe; }
+
+.sim-extras {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.sim-btn--fantasma { align-items: center; border-color: var(--borda-forte); color: var(--texto-suave); }
+.sim-btn--fantasma:hover:not(:disabled) { border-color: var(--texto-fraco); color: var(--tinta); }
+
+.sim-velocidade {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    color: var(--texto-suave);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.sim-velocidade input { flex: 1; accent-color: var(--azul); }
+
+/* ---- Código ---- */
+.sim-big-o {
+    margin-left: 6px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: var(--fundo-2);
+    color: var(--texto-suave);
+    font-family: var(--fonte-codigo);
+    font-size: 11px;
+}
+
+.sim-codigo {
+    position: relative;
+    max-height: 340px;
+    margin: 0;
+    padding: 10px 0;
+    border-radius: 10px;
+    background: var(--tinta-2);
+    color: #cbd5e1;
+    overflow: auto;
+    font-family: var(--fonte-codigo);
+    font-size: 12px;
+    line-height: 1.75;
+}
+
+.sim-codigo * { font-family: var(--fonte-codigo); }
+
+.sim-codigo-dica { display: block; padding: 0 12px; color: #64748b; }
+
+.sim-linha {
+    display: block;
+    padding-right: 12px;
+    border-left: 3px solid transparent;
+    white-space: pre;
+    transition: background .2s, border-color .2s;
+}
+
+.sim-linha::before {
+    content: attr(data-n);
+    display: inline-block;
+    width: 28px;
+    padding-right: 10px;
+    color: #475569;
+    text-align: right;
+}
+
+.sim-linha.ativa {
+    border-left-color: var(--amarelo);
+    background: rgba(234, 179, 8, .16);
+    color: var(--branco);
+}
+
+.sim-linha.ativa::before { color: var(--amarelo); }
+
+.sim-codigo .k { color: #93c5fd; }
+.sim-codigo .s { color: #6ee7b7; }
+.sim-codigo .c { color: #64748b; font-style: italic; }
+
+/* ---- Legenda ---- */
+.sim-legenda {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 10px;
+    list-style: none;
+    color: var(--texto-suave);
+    font-size: 12px;
+}
+
+.sim-legenda li { display: flex; align-items: center; gap: 6px; }
+
+.cor { width: 12px; height: 12px; border: 2px solid; border-radius: 3px; flex-shrink: 0; }
+.cor-atual  { border-color: var(--amarelo);  background: var(--amarelo-claro); }
+.cor-novo   { border-color: var(--verde);    background: var(--verde-claro); }
+.cor-alvo   { border-color: var(--vermelho); background: var(--vermelho-claro); }
+.cor-achado { border-color: var(--azul);     background: var(--azul); }
+
+.linha { width: 18px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+.linha-azul  { background: var(--azul); }
+.linha-verde { background: var(--verde); }
+
+/* ---- Histórico ---- */
+.sim-log {
+    max-height: 170px;
+    overflow-y: auto;
+    list-style: none;
+    font-family: var(--fonte-codigo);
+    font-size: 12px;
+}
+
+.sim-log:empty::before { content: 'Nenhuma operação ainda.'; color: var(--texto-fraco); }
+
+.sim-log li {
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--borda);
+    color: var(--texto-suave);
+    animation: tagEntra .25s ease;
+}
+
+.sim-log li:first-child { color: var(--tinta); font-weight: 600; }
+.sim-log li.erro { color: var(--vermelho); }
+
+.sim-teoria {
+    display: block;
+    padding: 12px;
+    border: 1px dashed var(--azul-borda);
+    border-radius: var(--raio);
+    color: var(--azul);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: background .2s;
+}
+
+.sim-teoria:hover { background: var(--azul-claro); }
+
+/* ============================================
+   MENU DO BOTÃO DIREITO
+   ============================================ */
+.sim-menu {
+    position: fixed;
+    z-index: 1000;
+    min-width: 220px;
+    max-width: 280px;
+    padding: 6px;
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    background: var(--branco);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, .18);
+    animation: menuEntra .14s ease-out;
+}
+
+.sim-menu[hidden] { display: none; }
+
+@keyframes menuEntra {
+    from { opacity: 0; transform: scale(.96) translateY(-4px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.sim-menu hr { height: 1px; margin: 6px 4px; border: 0; background: var(--borda); }
+
+.sim-menu-titulo {
+    padding: 6px 10px 4px;
+    color: var(--texto-fraco);
+    font-family: var(--fonte-codigo);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.sim-menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-left: 3px solid transparent;
+    border-radius: 7px;
+    background: none;
+    color: var(--tinta);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+}
+
+.sim-menu-item small { color: var(--texto-fraco); font-size: 12px; font-weight: 400; }
+
+.sim-menu-item:hover:not(:disabled) { background: var(--fundo-2); }
+
+.sim-menu-item.verde    { border-left-color: var(--verde); }
+.sim-menu-item.vermelho { border-left-color: var(--vermelho); }
+.sim-menu-item.azul     { border-left-color: var(--azul); }
+
+.sim-menu-item.verde:hover:not(:disabled)    { background: var(--verde-claro); }
+.sim-menu-item.vermelho:hover:not(:disabled) { background: var(--vermelho-claro); color: #b91c1c; }
+.sim-menu-item.azul:hover:not(:disabled)     { background: var(--azul-claro); }
+
+.sim-menu-item:disabled { color: var(--texto-fraco); cursor: not-allowed; }
+.sim-menu-item:disabled span { text-decoration: line-through; }
+
+.sim-menu-editar { padding: 8px 10px 6px; }
+
+.sim-menu-editar label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--texto-suave);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.sim-menu-editar div { display: flex; gap: 6px; }
+
+.sim-menu-editar input {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 8px;
+    border: 1px solid var(--borda-forte);
+    border-radius: 7px;
+    font-family: var(--fonte-codigo);
+    font-size: 13px;
+    outline: none;
+}
+
+.sim-menu-editar input:focus { border-color: var(--azul); }
+
+.sim-menu-editar button {
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 7px;
+    background: var(--azul);
+    color: var(--branco);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+@keyframes tremer {
+    0%, 100% { translate: 0; }
+    25%      { translate: -5px; }
+    75%      { translate: 5px; }
+}
+
+/* ============================================
+   RESPONSIVO
+   ============================================ */
+@media (max-width: 900px) {
+    body.pagina-simulador { height: auto; overflow: auto; }
+
+    .sim-corpo { grid-template-columns: 1fr; }
+    .sim-palco { height: 62vh; min-height: 380px; }
+    .sim-painel { border-left: 0; border-top: 1px solid var(--borda); }
+    .painel-oculto .sim-corpo { grid-template-columns: 1fr; }
+    .painel-oculto .sim-painel { display: none; }
+
+    .sim-app:fullscreen .sim-palco { height: 100%; }
+    .sim-app:fullscreen .sim-corpo { grid-template-rows: 1fr; }
+    .sim-app:fullscreen .sim-painel { display: none; }
+
+    .sim-dica { display: none; }
+    .sim-barra { padding: 8px 10px; }
+    .sim-ferramentas { width: 100%; }
+    .sim-separador { display: none; }
+}
+
+@media (max-width: 520px) {
+    .sim-narracao { bottom: 10px; font-size: 13px; padding: 10px 10px 10px 40px; }
+    .sim-proximo { padding: 7px 10px; }
+}
+
+/* ============================================
+   CURSOR PRETO DENTRO DO PALCO
+   (fica no fim para valer sobre as regras acima)
+   ============================================ */
+.sim-palco,
+.sim-palco * { cursor: var(--cursor-seta); }
+
+/* sobre um nó: cruz de mover */
+.sim-palco .sim-ancora,
+.sim-palco .sim-ancora * { cursor: var(--cursor-mover); }
+
+/* arrastando o fundo ou um nó */
+.sim-palco.movendo,
+.sim-palco.movendo *,
+.sim-palco .sim-ancora.arrastando,
+.sim-palco .sim-ancora.arrastando * { cursor: var(--cursor-mover); }

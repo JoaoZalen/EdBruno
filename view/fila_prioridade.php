@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fila de Prioridade - ED Ensino</title>
-    <link rel="stylesheet" href="../css/header.css?v=2">
-    <link rel="stylesheet" href="../css/footer.css?v=2">
-    <link rel="stylesheet" href="../css/fila_prioridade.css?v=1">
+    <link rel="stylesheet" href="../css/base.css?v=2">
+    <link rel="stylesheet" href="../css/header.css?v=5">
+    <link rel="stylesheet" href="../css/footer.css?v=3">
+    <link rel="stylesheet" href="../css/conteudo.css?v=2">
 </head>
 <body>
 <?php include 'header.php'; ?>
@@ -15,6 +16,10 @@
 <div class="pagina-banner">
     <h1>Fila de Prioridade Encadeada</h1>
     <p>Entenda como uma fila pode atender elementos pela prioridade, preservando a ordem de chegada quando as prioridades são iguais.</p>
+    <div class="banner-acoes">
+        <a href="simulador.php?ed=fila_prioridade" class="btn btn-sucesso">Simular Fila de Prioridade</a>
+        <a href="home.php#trilha" class="btn btn-contorno">Ver trilha</a>
+    </div>
 </div>
 
 <main class="pagina-conteudo">
@@ -113,6 +118,15 @@ public class FilaPrioridade
             <li><strong>Consulta:</strong> O(1), pois lê o início.</li>
         </ul>
     </section>
+
+    <aside class="chamada-simulador">
+        <div>
+            <h3>Agora veja na prática</h3>
+            <p>Insira e remova valores na Fila de Prioridade e acompanhe cada ponteiro mudar.</p>
+        </div>
+        <a href="simulador.php?ed=fila_prioridade" class="btn btn-sucesso">Abrir simulador</a>
+    </aside>
+
 </main>
 
 <?php include 'footer.php'; ?>

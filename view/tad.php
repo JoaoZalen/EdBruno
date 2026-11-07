@@ -9,10 +9,10 @@ include 'session.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TAD - Tipo Abstrato de Dados</title>
-
-    <link rel="stylesheet" href="../css/header.css?v=2">
-    <link rel="stylesheet" href="../css/footer.css?v=2">
-    <link rel="stylesheet" href="../css/tad.css?v=10">
+    <link rel="stylesheet" href="../css/base.css?v=2">
+    <link rel="stylesheet" href="../css/header.css?v=5">
+    <link rel="stylesheet" href="../css/footer.css?v=3">
+    <link rel="stylesheet" href="../css/tad.css?v=11">
 
 </head>
 
@@ -229,7 +229,7 @@ Operações:
 
         <h2>Vantagens dos TADs</h2>
 
-        <ul class="lista-topicos">
+        <ul class="lista-topicos lista-boa">
             <li>Facilitam a organização do código.</li>
             <li>Permitem separar lógica e implementação.</li>
             <li>Ajudam na reutilização de estruturas.</li>
@@ -243,7 +243,7 @@ Operações:
 
         <h2>Desvantagens dos TADs</h2>
 
-        <ul class="lista-topicos">
+        <ul class="lista-topicos lista-ruim">
             <li>Podem exigir mais planejamento antes da implementação.</li>
             <li>Algumas estruturas são mais difíceis de programar.</li>
             <li>Dependendo da implementação, podem consumir mais memória.</li>

@@ -7,10 +7,10 @@ include 'session.php';
 <head>
     <meta charset="UTF-8">
     <title>Lista Simplesmente Encadeada</title>
-
-    <link rel="stylesheet" href="../css/header.css?v=2">
-    <link rel="stylesheet" href="../css/footer.css?v=2">
-    <link rel="stylesheet" href="../css/lista_simples.css?v=10">
+    <link rel="stylesheet" href="../css/base.css?v=2">
+    <link rel="stylesheet" href="../css/header.css?v=5">
+    <link rel="stylesheet" href="../css/footer.css?v=3">
+    <link rel="stylesheet" href="../css/conteudo.css?v=2">
 </head>
 
 <body>
@@ -20,6 +20,10 @@ include 'session.php';
 <div class="pagina-banner">
     <h1>Lista Simplesmente Encadeada</h1>
     <p>Foco comparativo (ideal para quem já conhece vetores)</p>
+    <div class="banner-acoes">
+        <a href="simulador.php?ed=lista_simples" class="btn btn-sucesso">Simular Lista Simples</a>
+        <a href="home.php#trilha" class="btn btn-contorno">Ver trilha</a>
+    </div>
 </div>
 
 <main class="pagina-conteudo">
@@ -265,6 +269,15 @@ include 'session.php';
             elementos sem depender de posições fixas na memória.
         </p>
     </section>
+
+
+    <aside class="chamada-simulador">
+        <div>
+            <h3>Agora veja na prática</h3>
+            <p>Insira e remova valores na Lista Simples e acompanhe cada ponteiro mudar.</p>
+        </div>
+        <a href="simulador.php?ed=lista_simples" class="btn btn-sucesso">Abrir simulador</a>
+    </aside>
 
 </main>
 

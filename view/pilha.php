@@ -7,9 +7,10 @@ include 'session.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/header.css?v=2">
-    <link rel="stylesheet" href="../css/footer.css?v=2">
-    <link rel="stylesheet" href="../css/pilha.css?v=1">
+    <link rel="stylesheet" href="../css/base.css?v=2">
+    <link rel="stylesheet" href="../css/header.css?v=5">
+    <link rel="stylesheet" href="../css/footer.css?v=3">
+    <link rel="stylesheet" href="../css/conteudo.css?v=2">
     <title>Pilha Encadeada</title>
 </head>
 <body>
@@ -26,6 +27,10 @@ include 'session.php';
         acontece em um único ponto — o <em>topo</em> da pilha.
     </p>
     <span class="banner-tag">LIFO — último a entrar, primeiro a sair</span>
+    <div class="banner-acoes">
+        <a href="simulador.php?ed=pilha" class="btn btn-sucesso">Simular Pilha</a>
+        <a href="home.php#trilha" class="btn btn-contorno">Ver trilha</a>
+    </div>
 </div>
 
 
@@ -785,6 +790,15 @@ Vazia? False</code></pre>
         </p>
     </section>
 
+
+
+    <aside class="chamada-simulador">
+        <div>
+            <h3>Agora veja na prática</h3>
+            <p>Insira e remova valores na Pilha e acompanhe cada ponteiro mudar.</p>
+        </div>
+        <a href="simulador.php?ed=pilha" class="btn btn-sucesso">Abrir simulador</a>
+    </aside>
 
 </main>
 

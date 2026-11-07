@@ -5,14 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperar Senha - ED Ensino</title>
-    <link rel="stylesheet" href="../css/header.css?v=2">
-    <link rel="stylesheet" href="../css/footer.css?v=2">
-    <link rel="stylesheet" href="../css/painel.css?v=2">
+    <link rel="stylesheet" href="../css/base.css?v=2">
+    <link rel="stylesheet" href="../css/header.css?v=5">
+    <link rel="stylesheet" href="../css/footer.css?v=3">
+    <link rel="stylesheet" href="../css/painel.css?v=4">
 </head>
 <body>
 <?php include 'header.php'; ?>
 <main class="painel-container">
-    <section class="painel-card" style="max-width: 620px; margin: auto;">
+    <section class="painel-card painel-card--estreito">
         <h1 class="painel-titulo">Recuperar Senha</h1>
         <p class="painel-subtitulo">Informe seu e-mail. No modo local, o link seguro aparece aqui para demonstração.</p>
         <?php if(isset($_SESSION['Sucesso'])) { ?><div class="painel-alerta"><?php echo $_SESSION['Sucesso']; unset($_SESSION['Sucesso']); ?></div><?php } ?>

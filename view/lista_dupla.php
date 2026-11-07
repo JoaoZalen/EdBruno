@@ -7,9 +7,10 @@ include 'session.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/header.css?v=2">
-    <link rel="stylesheet" href="../css/footer.css?v=2">
-    <link rel="stylesheet" href="../css/lista_dupla.css?v=2">
+    <link rel="stylesheet" href="../css/base.css?v=2">
+    <link rel="stylesheet" href="../css/header.css?v=5">
+    <link rel="stylesheet" href="../css/footer.css?v=3">
+    <link rel="stylesheet" href="../css/conteudo.css?v=2">
     <title>Lista Duplamente Encadeada</title>
 </head>
 <body>
@@ -18,7 +19,11 @@ include 'session.php';
 <!-- ========== BANNER DA PÁGINA ========== -->
 <div class="pagina-banner">
     <h1>Lista Duplamente Encadeada</h1>
-    <p></p>
+    <p>Cada nó conhece o próximo e o anterior: navegue nos dois sentidos e remova do fim sem percorrer a lista.</p>
+    <div class="banner-acoes">
+        <a href="simulador.php?ed=lista_dupla" class="btn btn-sucesso">Simular Lista Dupla</a>
+        <a href="home.php#trilha" class="btn btn-contorno">Ver trilha</a>
+    </div>
 </div>
  
  
@@ -250,7 +255,7 @@ include 'session.php';
     }</code></pre>
         </div>
  
-        <p style="margin-top: 12px;">
+        <p>
             Saída esperada para uma lista com os valores 10, 20 e 30:
         </p>
  
@@ -260,6 +265,15 @@ include 'session.php';
     </section>
  
  
+
+    <aside class="chamada-simulador">
+        <div>
+            <h3>Agora veja na prática</h3>
+            <p>Insira e remova valores na Lista Dupla e acompanhe cada ponteiro mudar.</p>
+        </div>
+        <a href="simulador.php?ed=lista_dupla" class="btn btn-sucesso">Abrir simulador</a>
+    </aside>
+
 </main>
 
 <?php include 'footer.php'; ?>

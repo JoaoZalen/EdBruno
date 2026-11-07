@@ -1,3 +1,8 @@
+-- ED Ensino - script de criação do banco
+-- ATENÇÃO: este script APAGA e recria o banco ed_ensino do zero
+-- (usuários, moedas e inventário somem). Use só na instalação ou para resetar.
+-- Importar no phpMyAdmin (aba Importar) ou: mysql -u root < ed_ensino.sql
+
 DROP DATABASE IF EXISTS ed_ensino;
 CREATE DATABASE ed_ensino CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE ed_ensino;
@@ -33,6 +38,7 @@ CREATE TABLE quiz_partidas (
   total_perguntas INT NOT NULL DEFAULT 0,
   moedas_ganhas INT NOT NULL DEFAULT 0,
   criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_quiz_usuario (usuario_id, criado_em),
   CONSTRAINT fk_quiz_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -44,7 +50,8 @@ CREATE TABLE itens (
   preco INT NOT NULL,
   descricao VARCHAR(255) NOT NULL,
   habilidade VARCHAR(80) NOT NULL,
-  imagem VARCHAR(255) NOT NULL
+  imagem VARCHAR(255) NOT NULL,
+  UNIQUE KEY uk_itens_imagem (imagem)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE inventario (
@@ -65,6 +72,7 @@ CREATE TABLE moedas_movimentacoes (
   tipo VARCHAR(20) NOT NULL,
   motivo VARCHAR(255) NOT NULL,
   criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_moedas_usuario (usuario_id, criado_em),
   CONSTRAINT fk_moedas_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

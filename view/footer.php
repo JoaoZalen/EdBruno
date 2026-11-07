@@ -3,63 +3,51 @@
     <div class="footer-content">
 
         <div class="footer-left">
-
-            <h2>
-                ED<span>Ensino</span>
-            </h2>
-
+            <a href="home.php" class="footer-logo">
+                <span class="logo-marca">ED</span>
+                <span>Ensino</span>
+            </a>
             <p>
-                Plataforma educacional voltada ao ensino
-                de Estruturas de Dados de forma visual,
-                moderna e interativa.
+                Plataforma acadêmica para aprender Estruturas de Dados
+                com teoria, código em C# e simulações interativas.
             </p>
-
         </div>
 
-        <div class="footer-links">
-
-            <h3>Navegação</h3>
-
-            <a href="home.php">Home</a>
-
+        <div class="footer-coluna">
+            <h3>Conteúdos</h3>
             <a href="tad.php">TAD</a>
-
             <a href="lista_simples.php">Lista Simples</a>
-
             <a href="lista_dupla.php">Lista Dupla</a>
-
             <a href="pilha.php">Pilha</a>
-
             <a href="fila_fifo.php">Fila FIFO</a>
-
             <a href="fila_prioridade.php">Fila de Prioridade</a>
-
-            <a href="quiz.php">Quiz</a>
-
+            <a href="arvore_binaria.php">Árvore Binária</a>
         </div>
 
-        <div class="footer-info">
+        <div class="footer-coluna">
+            <h3>Prática</h3>
+            <a href="simulador.php">Simulador</a>
+            <a href="quiz.php">Quiz</a>
+            <a href="loja.php">Loja do avatar</a>
+            <a href="perfil.php">Meu perfil</a>
+        </div>
 
+        <div class="footer-coluna">
             <h3>Tecnologias</h3>
-
-            <p>PHP</p>
-
-            <p>MySQL</p>
-
-            <p>C#</p>
-
-            <p>HTML • CSS • JavaScript</p>
-
+            <div class="footer-tags">
+                <span>PHP</span>
+                <span>MySQL</span>
+                <span>C#</span>
+                <span>HTML</span>
+                <span>CSS</span>
+                <span>JavaScript</span>
+            </div>
         </div>
 
     </div>
 
     <div class="footer-bottom">
-
-        <p>
-            © 2026 ED Ensino — Todos os direitos reservados
-        </p>
-
+        <p>© <?php echo date('Y'); ?> ED Ensino — Projeto acadêmico de Estruturas de Dados</p>
     </div>
 
 </footer>
