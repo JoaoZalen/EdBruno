@@ -4,7 +4,7 @@
    Caminho: js/simulador.js
 
    Visão geral:
-   1. Estado        → "nos" (listas, pilha, filas) ou "raiz" (árvore)
+   1. Estado        → "nos" (listas, pilha, filas), "raiz" (BST) ou "raizTrie" (Trie)
    2. Layout        → calcula onde cada nó deveria ficar (x, y)
    3. desenhar()    → cria/move os nós na tela (com transição CSS)
    4. Linhas        → um laço (requestAnimationFrame) redesenha as
@@ -48,7 +48,7 @@
 
     /* =============================================================
        1. CONFIGURAÇÃO E ESTADO
-       forma: 'linha' (horizontal) | 'coluna' (pilha) | 'arvore'
+       forma: 'linha' (horizontal) | 'coluna' (pilha) | 'arvore' | 'trie'
        ============================================================= */
     var CONFIG = {
         lista_simples: {
@@ -82,6 +82,10 @@
             forma: 'arvore', max: 25,
             ops: ['arvInserir', 'arvRemover', 'arvBuscar', 'arvEmOrdem', 'arvPreOrdem',
                   'arvPosOrdem', 'arvNivel', 'arvMinimo', 'arvMaximo']
+        },
+        arvore_trie: {
+            forma: 'trie', max: 45,
+            ops: ['trieInserir', 'trieBuscar', 'triePrefixo', 'trieSugerir', 'trieRemover']
         }
     };
 
@@ -89,17 +93,19 @@
     if (!CONF) return;
     var DUPLA  = !!CONF.duplo;
     var ARVORE = CONF.forma === 'arvore';
+    var TRIE   = CONF.forma === 'trie';
 
     var nos      = [];   // estruturas lineares: [{ id, valor, prio }] na ordem
-    var raiz     = null; // árvore: { id, valor, esq, dir }
+    var raiz     = null; // árvore binária: { id, valor, esq, dir }
+    var raizTrie = null; // árvore trie: { id, valor, fim, filhos: {} }
     var contador = 0;    // gera ids únicos
     var ocupado  = false;
 
-    var unidades  = {};  // id -> { el, caixa, valorEl, no, saindo }
-    var manual    = {};  // id -> {x, y}  posições definidas arrastando
-    var posicoes  = {};  // id -> {x, y}  onde cada nó está (alvo atual)
+    var unidades    = {}; // id -> { el, caixa, valorEl, no, saindo }
+    var manual      = {}; // id -> {x, y}  posições definidas arrastando
+    var posicoes    = {}; // id -> {x, y}  onde cada nó está (alvo atual)
     var linksAtuais = [];
-    var brilhos   = {};  // chave da linha -> instante em que o brilho termina
+    var brilhos     = {}; // chave da linha -> instante em que o brilho termina
     var ultimoAtual = null;
 
     /* =============================================================
@@ -353,6 +359,61 @@
             'while (atual.Direita != null)',
             '    atual = atual.Direita;',
             'return atual.Valor;'
+        ],
+
+        /* ----- Árvore Trie (Árvore de Prefixos) ----- */
+        trieInserir: [
+            'NoTrie atual = raiz;',
+            'foreach (char c in palavra.ToLower()) {',
+            '    int indice = c - \'a\';',
+            '    if (atual.Filhos[indice] == null)',
+            '        atual.Filhos[indice] = new NoTrie();',
+            '    atual = atual.Filhos[indice];',
+            '}',
+            'atual.FimDePalavra = true;'
+        ],
+        trieBuscar: [
+            'NoTrie atual = raiz;',
+            'foreach (char c in palavra.ToLower()) {',
+            '    int indice = c - \'a\';',
+            '    if (atual.Filhos[indice] == null) return false;',
+            '    atual = atual.Filhos[indice];',
+            '}',
+            'return atual.FimDePalavra;'
+        ],
+        triePrefixo: [
+            'NoTrie atual = raiz;',
+            'foreach (char c in prefixo.ToLower()) {',
+            '    int indice = c - \'a\';',
+            '    if (atual.Filhos[indice] == null) return false;',
+            '    atual = atual.Filhos[indice];',
+            '}',
+            'return true;  // caminho do prefixo existe'
+        ],
+        trieSugerir: [
+            'NoTrie no = PercorrerPrefixo(prefixo);',
+            'if (no == null) return lista;',
+            'void Coletar(NoTrie atual, string texto) {',
+            '    if (atual.FimDePalavra) lista.Add(texto);',
+            '    for (int i = 0; i < 26; i++)',
+            '        if (atual.Filhos[i] != null)',
+            '            Coletar(atual.Filhos[i], texto + (char)(\'a\' + i));',
+            '}'
+        ],
+        trieRemover: [
+            'bool RemoverRec(NoTrie atual, string palavra, int prof) {',
+            '    if (prof == palavra.Length) {',
+            '        if (!atual.FimDePalavra) return false;',
+            '        atual.FimDePalavra = false;',
+            '        return EstaVazio(atual);',
+            '    }',
+            '    int idx = palavra[prof] - \'a\';',
+            '    if (RemoverRec(atual.Filhos[idx], palavra, prof + 1)) {',
+            '        atual.Filhos[idx] = null;',
+            '        return !atual.FimDePalavra && EstaVazio(atual);',
+            '    }',
+            '    return false;',
+            '}'
         ]
     };
 
@@ -410,6 +471,10 @@
             mapa['raiz'] = idDe(raiz);
             return mapa;
         }
+        if (TRIE) {
+            mapa['raiz'] = idDe(raizTrie);
+            return mapa;
+        }
         CONF.ponteiros.forEach(function (p) {
             var no = (p[1] === 'primeiro') ? nos[0] : nos[nos.length - 1];
             mapa[p[0]] = idDe(no);
@@ -430,7 +495,7 @@
         while (historico.children.length > 10) historico.removeChild(historico.lastChild);
     }
 
-    /* ---- Árvore: utilidades ---- */
+    /* ---- Árvore Binária: utilidades ---- */
     function emOrdemLista(n, prof, lista) {
         if (!n) return lista;
         emOrdemLista(n.esq, prof + 1, lista);
@@ -454,22 +519,53 @@
         }
     }
 
-    function acharNoArvore(id) {
-        var achado = null;
-        (function rec(n) {
-            if (!n || achado) return;
-            if (n.id === id) { achado = n; return; }
-            rec(n.esq); rec(n.dir);
-        })(raiz);
-        return achado;
+    /* ---- Árvore Trie: utilidades ---- */
+    var PALAVRAS_EXEMPLO = ['CASA', 'CASACO', 'CASO', 'CARRO', 'CARTA', 'CAO', 'GATO', 'GALO', 'SOL', 'SOM', 'SONHO'];
+
+    function criarNoTrie(letra) {
+        contador++;
+        return { id: contador, valor: letra, fim: false, filhos: {} };
+    }
+
+    function garantirRaizTrie() {
+        if (!raizTrie) raizTrie = criarNoTrie('∅');
+        return raizTrie;
+    }
+
+    function contarNosTrie(n) {
+        if (!n) return 0;
+        var total = 1;
+        Object.keys(n.filhos).forEach(function (k) { total += contarNosTrie(n.filhos[k]); });
+        return total;
+    }
+
+    function listarPalavrasTrie(n, pref, acc) {
+        if (!n) return acc;
+        if (n.fim) acc.push(pref);
+        Object.keys(n.filhos).sort().forEach(function (k) {
+            listarPalavrasTrie(n.filhos[k], pref + k, acc);
+        });
+        return acc;
+    }
+
+    function inserirTrieSemAnimar(palavra) {
+        var a = garantirRaizTrie();
+        for (var i = 0; i < palavra.length; i++) {
+            var c = palavra[i];
+            if (!a.filhos[c]) a.filhos[c] = criarNoTrie(c);
+            a = a.filhos[c];
+        }
+        a.fim = true;
     }
 
     function totalNos() {
-        return ARVORE ? emOrdemLista(raiz, 0, []).length : nos.length;
+        if (ARVORE) return emOrdemLista(raiz, 0, []).length;
+        if (TRIE) return contarNosTrie(raizTrie);
+        return nos.length;
     }
 
     /* ---------- Painel de código ---------- */
-    var PALAVRAS = /\b(new|if|else|return|while|for|int|null|throw|true|void|No|Exception|Console|Queue)\b/g;
+    var PALAVRAS = /\b(new|if|else|return|while|for|int|null|throw|true|false|void|bool|char|string|foreach|in|No|NoTrie|Exception|Console|Queue)\b/g;
 
     function escapar(t) {
         return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -481,7 +577,7 @@
         codigoEl.innerHTML = COD[opId].map(function (linha, i) {
             var partes = linha.split('//');
             var html = escapar(partes[0])
-                .replace(/("[^"]*")/g, '<span class="s">$1</span>')
+                .replace(/("[^"]*"|'[^']*')/g, '<span class="s">$1</span>')
                 .replace(PALAVRAS, '<span class="k">$1</span>');
             if (partes.length > 1) html += '<span class="c">//' + escapar(partes.slice(1).join('//')) + '</span>';
             return '<span class="sim-linha" data-n="' + (i + 1) + '">' + html + '</span>';
@@ -521,6 +617,28 @@
                 return { no: it.no, x: (i - iRaiz) * ARV_X, y: it.prof * ARV_Y };
             });
         }
+        if (TRIE) {
+            if (!raizTrie) return [];
+            var folhas = 0;
+            var coords = [];
+            function posicionarTrie(n, prof) {
+                var chaves = Object.keys(n.filhos).sort();
+                var xAtual;
+                if (!chaves.length) {
+                    xAtual = folhas * ARV_X;
+                    folhas++;
+                } else {
+                    var xs = chaves.map(function (k) { return posicionarTrie(n.filhos[k], prof + 1); });
+                    xAtual = (xs[0] + xs[xs.length - 1]) / 2;
+                }
+                coords.push({ no: n, x: xAtual, y: prof * ARV_Y });
+                return xAtual;
+            }
+            var xRaiz = posicionarTrie(raizTrie, 0);
+            return coords.map(function (it) {
+                return { no: it.no, x: it.x - xRaiz, y: it.y };
+            });
+        }
         return nos.map(function (n, i) {
             return CONF.forma === 'coluna'
                 ? { no: n, x: 0, y: i * ESP_Y }
@@ -554,7 +672,7 @@
         el.className = 'sim-ancora';
         el.dataset.id = no.id;
 
-        var esq = '', dir = '<span class="sim-ptr" data-ptr="prox"></span>';
+        var esq = '', dir = TRIE ? '' : '<span class="sim-ptr" data-ptr="prox"></span>';
         if (DUPLA) esq = '<span class="sim-ptr" data-ptr="ant"></span>';
         if (ARVORE) {
             esq = '<span class="sim-ptr" data-ptr="esq"></span>';
@@ -661,6 +779,11 @@
             });
         }
         if (op.atual) addTag(op.atual, 'atual', 'sim-tag--atual');
+        if (TRIE) {
+            todos.forEach(function (no) {
+                if (no.fim) addTag(no.id, 'fim', 'sim-tag--extra');
+            });
+        }
 
         // ---- 4) Cria / atualiza / posiciona os elementos ----
         var vivos = {};
@@ -679,12 +802,13 @@
             vivos[no.id] = true;
 
             var cl = u.el.classList;
-            cl.toggle('atual',    op.atual  === no.id);
-            cl.toggle('novo',     op.novo   === no.id);
-            cl.toggle('alvo',     op.alvo   === no.id);
-            cl.toggle('achado',   op.achado === no.id);
-            cl.toggle('visitado', !!(op.visitados && op.visitados.indexOf(no.id) >= 0));
-            cl.toggle('fixado',   !!manual[no.id]);
+            cl.toggle('atual',       op.atual  === no.id);
+            cl.toggle('novo',        op.novo   === no.id);
+            cl.toggle('alvo',        op.alvo   === no.id);
+            cl.toggle('achado',      op.achado === no.id);
+            cl.toggle('visitado',    !!(op.visitados && op.visitados.indexOf(no.id) >= 0));
+            cl.toggle('fixado',      !!manual[no.id]);
+            cl.toggle('fim-palavra', !!(TRIE && no.fim));
 
             // valor (pisca quando muda — ex.: cópia do sucessor na árvore)
             if (u.valorMostrado !== no.valor) {
@@ -745,6 +869,14 @@
                 if (n.dir) L.push({ de: n.id, para: n.dir.id, tipo: 'dir' });
                 rec(n.esq); rec(n.dir);
             })(raiz);
+        } else if (TRIE) {
+            (function recT(n) {
+                if (!n) return;
+                Object.keys(n.filhos).sort().forEach(function (k) {
+                    L.push({ de: n.id, para: n.filhos[k].id, tipo: 'trie' });
+                    recT(n.filhos[k]);
+                });
+            })(raizTrie);
         } else {
             var fora = op.fora || [];
             var cadeia = nos.filter(function (n) { return fora.indexOf(n.id) < 0; });
@@ -768,8 +900,11 @@
 
     function atualizarInfo(ponteiros) {
         var total = totalNos();
-        var partes = [(ARVORE ? '<b>nós</b> = ' : '<b>tamanho</b> = ') + total];
+        var partes = [((ARVORE || TRIE) ? '<b>nós</b> = ' : '<b>tamanho</b> = ') + total];
         if (ARVORE) partes.push('<b>altura</b> = ' + alturaArvore(raiz));
+        if (TRIE) {
+            partes.push('<b>palavras</b> = ' + listarPalavrasTrie(raizTrie, '', []).length);
+        }
         Object.keys(ponteiros).forEach(function (nome) {
             var u = unidades[ponteiros[nome]];
             partes.push('<b>' + nome + '</b> → ' + (u ? u.no.valor : 'null'));
@@ -917,7 +1052,7 @@
 
     /* =============================================================
        8. OPERAÇÕES
-       campos: entradas usadas ('valor', 'pos', 'prio')
+       campos: entradas usadas ('valor', 'pos', 'prio', 'texto')
        grupo:  'add' | 'rem' | 'ver'  (cor do botão)
        fn devolve { msg, manter } — manter = deixa o destaque final
        ============================================================= */
@@ -1552,6 +1687,180 @@
             rotulo: 'Máximo', metodo: 'Maximo()', custo: 'O(h)',
             campos: [], grupo: 'ver',
             fn: function () { return extremo('dir'); }
+        },
+
+        /* ======================= ÁRVORE TRIE ======================= */
+        trieInserir: {
+            rotulo: 'Inserir palavra', metodo: 'Inserir(palavra)', custo: 'O(m)',
+            campos: ['texto'], grupo: 'add',
+            fn: async function (palavra) {
+                var a = garantirRaizTrie();
+                await passo(0, 'Começamos na raiz vazia. Vamos percorrer cada letra de "' + palavra + '".', { atual: a.id });
+
+                for (var i = 0; i < palavra.length; i++) {
+                    var c = palavra[i];
+                    await passo(1, 'Letra [' + i + ']: \'' + c + '\' (índice ' + (c.charCodeAt(0) - 65) + ').', { atual: a.id });
+                    if (!a.filhos[c]) {
+                        var novo = criarNoTrie(c);
+                        a.filhos[c] = novo;
+                        await passo(4, 'Não havia caminho para \'' + c + '\': criamos um novo nó.', { atual: a.id, novo: novo.id });
+                    } else {
+                        await passo(3, 'O caminho para \'' + c + '\' já existe (prefixo compartilhado).', { atual: a.filhos[c].id });
+                    }
+                    a = a.filhos[c];
+                    await passo(5, 'atual avança para o nó \'' + c + '\'.', { atual: a.id });
+                }
+
+                a.fim = true;
+                await passo(7, 'Chegamos ao fim de "' + palavra + '": marcamos FimDePalavra = true.', { achado: a.id });
+                return { msg: 'Inseriu "' + palavra + '"', manter: true };
+            }
+        },
+
+        trieBuscar: {
+            rotulo: 'Buscar palavra', metodo: 'Buscar(palavra)', custo: 'O(m)',
+            campos: ['texto'], grupo: 'ver',
+            fn: async function (palavra) {
+                if (!raizTrie) { destacarLinha(0); falhar('A Trie está vazia.'); }
+                var a = raizTrie;
+                await passo(0, 'atual começa na raiz. Buscando "' + palavra + '".', { atual: a.id });
+
+                for (var i = 0; i < palavra.length; i++) {
+                    var c = palavra[i];
+                    await passo(1, 'Verificando letra \'' + c + '\'.', { atual: a.id });
+                    if (!a.filhos[c]) {
+                        await passo(3, 'Não existe filho para \'' + c + '\': a palavra "' + palavra + '" não está na Trie.');
+                        return { msg: 'Buscou "' + palavra + '": não encontrada' };
+                    }
+                    a = a.filhos[c];
+                    await passo(4, 'Desce para o nó \'' + c + '\'.', { atual: a.id });
+                }
+
+                if (a.fim) {
+                    await passo(6, 'FimDePalavra é true! A palavra "' + palavra + '" foi encontrada.', { achado: a.id });
+                    return { msg: 'Buscou "' + palavra + '": encontrada', manter: true };
+                } else {
+                    await passo(6, 'O caminho existe como prefixo, mas FimDePalavra é false! "' + palavra + '" não foi cadastrada.', { alvo: a.id });
+                    return { msg: 'Buscou "' + palavra + '": apenas prefixo (não é palavra)', manter: true };
+                }
+            }
+        },
+
+        triePrefixo: {
+            rotulo: 'Buscar prefixo', metodo: 'ComecaCom(prefixo)', custo: 'O(m)',
+            campos: ['texto'], grupo: 'ver',
+            fn: async function (prefixo) {
+                if (!raizTrie) { destacarLinha(0); falhar('A Trie está vazia.'); }
+                var a = raizTrie;
+                await passo(0, 'atual começa na raiz. Verificando prefixo "' + prefixo + '".', { atual: a.id });
+
+                for (var i = 0; i < prefixo.length; i++) {
+                    var c = prefixo[i];
+                    await passo(1, 'Verificando letra \'' + c + '\'.', { atual: a.id });
+                    if (!a.filhos[c]) {
+                        await passo(3, 'Caminho interrompido em \'' + c + '\': nenhuma palavra começa com "' + prefixo + '".');
+                        return { msg: 'Prefixo "' + prefixo + '": não encontrado' };
+                    }
+                    a = a.filhos[c];
+                    await passo(4, 'Desce para \'' + c + '\'.', { atual: a.id });
+                }
+
+                await passo(6, 'Retorna true! Existe pelo menos uma palavra começando com "' + prefixo + '".', { achado: a.id });
+                return { msg: 'Prefixo "' + prefixo + '": válido', manter: true };
+            }
+        },
+
+        trieSugerir: {
+            rotulo: 'Autocompletar', metodo: 'SugerirPalavras(prefixo)', custo: 'O(m + k)',
+            campos: ['texto'], grupo: 'ver',
+            fn: async function (prefixo) {
+                if (!raizTrie) { destacarLinha(0); falhar('A Trie está vazia.'); }
+                var a = raizTrie;
+                await passo(0, 'Navegando até o fim do prefixo "' + prefixo + '"...', { atual: a.id });
+                for (var i = 0; i < prefixo.length; i++) {
+                    var c = prefixo[i];
+                    if (!a.filhos[c]) {
+                        await passo(1, 'Prefixo "' + prefixo + '" não existe na Trie. Nenhuma sugestão.');
+                        return { msg: 'Autocompletar "' + prefixo + '": 0 sugestões' };
+                    }
+                    a = a.filhos[c];
+                }
+
+                var sugestoes = [], vis = [];
+                async function coletar(no, texto) {
+                    vis.push(no.id);
+                    if (no.fim) {
+                        sugestoes.push(texto);
+                        await passo(3, 'Achou palavra completa: "' + texto + '".   Sugestões: [' + sugestoes.join(', ') + ']',
+                            { achado: no.id, visitados: vis.slice() });
+                    } else {
+                        await passo(2, 'Explorando prefixo "' + texto + '"...', { atual: no.id, visitados: vis.slice() });
+                    }
+                    var chaves = Object.keys(no.filhos).sort();
+                    for (var k = 0; k < chaves.length; k++) {
+                        await passo(6, 'Descendo para \'' + chaves[k] + '\'.', { atual: no.id, visitados: vis.slice() });
+                        await coletar(no.filhos[chaves[k]], texto + chaves[k]);
+                    }
+                }
+
+                await coletar(a, prefixo);
+                narrar('Sugestões para "' + prefixo + '": ' + (sugestoes.length ? sugestoes.join(', ') : 'nenhuma'));
+                return { msg: 'Sugestões ("' + prefixo + '"): ' + sugestoes.join(', '), manter: true };
+            }
+        },
+
+        trieRemover: {
+            rotulo: 'Remover palavra', metodo: 'Remover(palavra)', custo: 'O(m)',
+            campos: ['texto'], grupo: 'rem',
+            fn: async function (palavra) {
+                if (!raizTrie) { destacarLinha(0); falhar('A Trie está vazia.'); }
+                var encontrou = false;
+
+                async function rec(atual, prof) {
+                    if (prof === palavra.length) {
+                        await passo(1, 'Chegamos ao último caractere de "' + palavra + '".', { atual: atual.id });
+                        if (!atual.fim) {
+                            await passo(2, 'FimDePalavra já era false: "' + palavra + '" não estava cadastrada.', { alvo: atual.id });
+                            return false;
+                        }
+                        encontrou = true;
+                        atual.fim = false;
+                        var vazioNo = Object.keys(atual.filhos).length === 0;
+                        await passo(3, 'Desmarcamos FimDePalavra = false.' +
+                            (vazioNo ? ' O nó não tem filhos e será removido.' : ' O nó tem filhos (outra palavra continua), então é mantido.'),
+                            { alvo: atual.id });
+                        return vazioNo;
+                    }
+
+                    var c = palavra[prof];
+                    if (!atual.filhos[c]) {
+                        await passo(6, 'Letra \'' + c + '\' não encontrada: a palavra "' + palavra + '" não existe.', { atual: atual.id });
+                        return false;
+                    }
+
+                    await passo(7, 'Descendo para \'' + c + '\'...', { atual: atual.filhos[c].id });
+                    var apagarFilho = await rec(atual.filhos[c], prof + 1);
+
+                    if (apagarFilho) {
+                        var idFilho = atual.filhos[c].id;
+                        await passo(8, 'Removendo nó exclusivo \'' + c + '\'...', { atual: atual.id, alvo: idFilho });
+                        delete atual.filhos[c];
+                        await sumir(idFilho);
+                        desenhar({ atual: atual.id });
+                        return !atual.fim && Object.keys(atual.filhos).length === 0 && atual !== raizTrie;
+                    }
+                    return false;
+                }
+
+                await rec(raizTrie, 0);
+                if (raizTrie && !raizTrie.fim && Object.keys(raizTrie.filhos).length === 0) {
+                    var idR = raizTrie.id;
+                    raizTrie = null;
+                    await sumir(idR);
+                }
+                desenhar();
+                return { msg: encontrou ? 'Removeu "' + palavra + '"' : 'Palavra "' + palavra + '" não encontrada' };
+            }
         }
     };
 
@@ -1630,6 +1939,12 @@
         return isNaN(n) ? null : n;
     }
 
+    function lerTexto(campo) {
+        if (!campo) return null;
+        var s = campo.value.trim().toUpperCase().replace(/[^A-Z]/g, '');
+        return s.length ? s : null;
+    }
+
     // preset: valores vindos do menu do botão direito (ignoram os campos)
     async function executar(opId, preset) {
         if (ocupado) return;
@@ -1641,6 +1956,13 @@
             valor = (preset.valor !== undefined) ? preset.valor : lerInteiro(campoValor);
             if (valor === null) valor = sortear();          // vazio = sorteia
             if (valor < 0 || valor > 999) return erroRapido('O valor precisa estar entre 0 e 999.', campoValor);
+        }
+        if (op.campos.indexOf('texto') >= 0) {
+            valor = (preset.valor !== undefined) ? preset.valor : lerTexto(campoValor);
+            if (!valor) {
+                valor = PALAVRAS_EXEMPLO[Math.floor(Math.random() * PALAVRAS_EXEMPLO.length)];
+            }
+            if (valor.length > 12) return erroRapido('Use palavras de até 12 letras (A-Z).', campoValor);
         }
         if (op.campos.indexOf('pos') >= 0) {
             pos = (preset.pos !== undefined) ? preset.pos : lerInteiro(campoPos);
@@ -1836,6 +2158,10 @@
        item = { texto, dica, acao, desativado, perigo } | '-' | { titulo }
        ============================================================= */
     function valorDoCampo() {
+        if (TRIE) {
+            var t = lerTexto(campoValor);
+            return t === null ? undefined : t;
+        }
         var v = lerInteiro(campoValor);
         return v === null ? undefined : v;
     }
@@ -1889,7 +2215,7 @@
         var i = -1;
         nos.forEach(function (n, k) { if (n.id === id) i = k; });
         var vCampo = valorDoCampo();
-        var rotuloValor = vCampo !== undefined ? vCampo : 'valor aleatório';
+        var rotuloValor = vCampo !== undefined ? vCampo : (TRIE ? 'palavra aleatória' : 'valor aleatório');
 
         if (ARVORE) {
             itens.push({ titulo: 'Nó ' + no.valor });
@@ -1897,6 +2223,29 @@
             itens.push({ texto: 'Buscar ' + no.valor, cor: 'azul', acao: function () { executar('arvBuscar', { valor: no.valor, semFoco: true }); } });
             itens.push({ texto: 'Inserir ' + rotuloValor, cor: 'verde', dica: 'a árvore decide o lugar', acao: function () { executar('arvInserir', { valor: vCampo, semFoco: true }); } });
             itens.push({ texto: 'Editar valor', desativado: true, dica: 'quebraria a ordem da árvore' });
+        } else if (TRIE) {
+            itens.push({ titulo: (no === raizTrie ? 'Raiz vazia' : 'Letra \'' + no.valor + '\'') + (no.fim ? ' · fim de palavra' : '') });
+            itens.push({ texto: 'Inserir ' + rotuloValor, cor: 'verde', acao: function () { executar('trieInserir', { valor: vCampo, semFoco: true }); } });
+            itens.push({ texto: 'Autocompletar a partir daqui', desativado: no === raizTrie, dica: no === raizTrie ? 'selecione uma letra' : 'lista palavras deste ramo', acao: function () {
+                var pref = '';
+                (function acharPref(n, caminho) {
+                    if (!n || pref) return;
+                    if (n.id === id) { pref = caminho; return; }
+                    Object.keys(n.filhos).forEach(function (k) { acharPref(n.filhos[k], caminho + k); });
+                })(raizTrie, '');
+                if (pref) executar('trieSugerir', { valor: pref, semFoco: true });
+            } });
+            if (no.fim) {
+                itens.push({ texto: 'Remover palavra deste nó', cor: 'vermelho', acao: function () {
+                    var pal = '';
+                    (function acharPal(n, caminho) {
+                        if (!n || pal) return;
+                        if (n.id === id) { pal = caminho; return; }
+                        Object.keys(n.filhos).forEach(function (k) { acharPal(n.filhos[k], caminho + k); });
+                    })(raizTrie, '');
+                    if (pal) executar('trieRemover', { valor: pal, semFoco: true });
+                } });
+            }
         } else if (TIPO === 'lista_simples' || TIPO === 'lista_dupla') {
             itens.push({ titulo: 'Nó ' + no.valor + ' · posição ' + i });
             itens.push({ texto: 'Inserir antes', dica: rotuloValor + ' na posição ' + i, cor: 'verde', acao: function () { executar('inserirPosicao', { valor: vCampo, pos: i, semFoco: true }); } });
@@ -1935,7 +2284,7 @@
 
     function itensDoFundo() {
         var vCampo = valorDoCampo();
-        var rotulo = vCampo !== undefined ? vCampo : 'valor aleatório';
+        var rotulo = vCampo !== undefined ? vCampo : (TRIE ? 'palavra aleatória' : 'valor aleatório');
         var primeiraAdd = CONF.ops.filter(function (o) { return OPS[o].grupo === 'add'; })[0];
         var addFim = (TIPO === 'lista_simples' || TIPO === 'lista_dupla') ? 'inserirFim' : primeiraAdd;
         return [
@@ -2001,7 +2350,7 @@
         c.addEventListener('keydown', function (e) {
             if (e.key !== 'Enter') return;
             e.preventDefault();
-            var alvo = (campoPos && c === campoPos) ? 'inserirPosicao' : CONF.ops[ARVORE ? 0 : (TIPO.indexOf('lista') === 0 ? 1 : 0)];
+            var alvo = (campoPos && c === campoPos) ? 'inserirPosicao' : CONF.ops[(ARVORE || TRIE) ? 0 : (TIPO.indexOf('lista') === 0 ? 1 : 0)];
             executar(alvo);
         });
     });
@@ -2010,6 +2359,7 @@
         if (ocupado) return;
         nos = [];
         raiz = null;
+        raizTrie = null;
         manual = {};
         autoEnquadrar = true;
         desenhar();
@@ -2021,6 +2371,7 @@
         if (ocupado) return;
         nos = [];
         raiz = null;
+        raizTrie = null;
         manual = {};
         autoEnquadrar = true;
         desenhar();
@@ -2033,6 +2384,15 @@
             desenhar();
             narrar('Árvore gerada inserindo ' + qtd + ' valores em ordem aleatória: ' + vals.join(', ') + '.');
             registrar('Gerou árvore aleatória');
+            return;
+        }
+
+        if (TRIE) {
+            var amostra = ['CASA', 'CASACO', 'CASO', 'CARRO', 'CAO', 'GATO', 'GALO'];
+            amostra.forEach(inserirTrieSemAnimar);
+            desenhar();
+            narrar('Trie gerada com prefixos compartilhados: ' + amostra.join(', ') + '.');
+            registrar('Gerou Trie aleatória');
             return;
         }
 

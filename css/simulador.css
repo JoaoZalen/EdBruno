@@ -7,7 +7,7 @@
 
    Cores dos estados dos nós:
    - amarelo  → nó sendo visitado (atual)
-   - verde    → nó novo
+   - verde    → nó novo / fim de palavra
    - vermelho → nó sendo removido
    - azul     → nó encontrado / retornado
    ============================================= */
@@ -448,10 +448,24 @@ body.pagina-simulador {
 [data-estrutura="pilha"] .sim-tag::after { content: ' →'; }
 [data-estrutura="pilha"] .sim-valor { min-width: 110px; }
 
-/* árvore: nó um pouco mais compacto */
+/* árvore binária: nó um pouco mais compacto */
 [data-estrutura="arvore_binaria"] .sim-valor { min-width: 44px; height: 44px; font-size: 17px; }
 [data-estrutura="arvore_binaria"] .sim-ptr { width: 20px; font-size: 12px; }
 [data-estrutura="arvore_binaria"] .sim-no { border-radius: 12px; }
+
+/* árvore trie: nós de uma letra só (compactos e circulares) */
+[data-estrutura="arvore_trie"] .sim-valor { min-width: 40px; height: 40px; font-size: 16px; text-transform: uppercase; }
+[data-estrutura="arvore_trie"] .sim-no { border-radius: 50%; width: 40px; height: 40px; justify-content: center; }
+
+/* ---- Fim de palavra na Trie ---- */
+.sim-ancora.fim-palavra .sim-no {
+    border-color: #16a34a;
+    background: #dcfce7;
+    color: #14532d;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
+}
+
+.sim-ancora.fim-palavra .sim-valor { color: #14532d; font-weight: 700; }
 
 /* ---- Estados ---- */
 .sim-ancora.atual .sim-no {
@@ -518,7 +532,8 @@ body.pagina-simulador {
 
 .sim-link--prox,
 .sim-link--esq,
-.sim-link--dir { stroke: var(--azul); marker-end: url(#seta-azul); }
+.sim-link--dir,
+.sim-link--trie { stroke: var(--azul); marker-end: url(#seta-azul); }
 
 .sim-link--ant { stroke: var(--verde); marker-end: url(#seta-verde); }
 
