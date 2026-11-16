@@ -49,6 +49,13 @@ $estruturas = [
         'desc'   => 'Cada nó tem até dois filhos: valores menores ficam à esquerda e maiores à direita. Assim a busca descarta metade da árvore a cada passo.',
         'pagina' => 'arvore_binaria.php',
     ],
+    'arvore_trie' => [
+        'aba'    => 'Árvore Trie',
+        'titulo' => 'Árvore Trie (Árvore de Prefixos)',
+        'regra'  => 'Caminhos por caracteres',
+        'desc'   => 'Uma árvore de prefixos onde cada nó armazena um caractere. Palavras com o mesmo início compartilham os mesmos ramos, permitindo buscas e autocompletações extremamente eficientes.',
+        'pagina' => 'arvore_trie.php',
+    ],
     'arvore_patricia' => [
         'aba'    => 'Árvore Patricia',
         'titulo' => 'Árvore Patricia (Radix Tree)',

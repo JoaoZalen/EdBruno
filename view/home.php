@@ -46,6 +46,11 @@ $trilha = [
             ['pagina' => 'arvore_binaria.php', 'sim' => 'arvore_binaria', 'titulo' => 'Árvore Binária de Busca',
              'texto' => 'Menores à esquerda, maiores à direita. Inserção, busca, os três casos de remoção e os quatro percursos.',
              'tags' => ['Raiz', 'Folha', 'O(log n)']],
+             [
+                'pagina' => 'arvore_trie.php', 'sim' => 'arvore_trie', 'titulo' => 'Árvore Trie (Prefixos)',
+                'texto' => 'Caminhos por caracteres e prefixos compartilhados. Inserção, busca exata, verificação de prefixo, autocompletar e remoção.',
+                'tags' => ['Prefixos', 'Autocompletar', 'O(m)']
+             ],
             ['pagina' => 'arvore_patricia.php', 'sim' => 'arvore_patricia', 'titulo' => 'Árvore Patricia',
              'texto' => 'Trie compactada que funde nós sem ramificação para economizar memória.',
              'tags' => ['Radix Tree', 'Compressão', 'O(m)']],

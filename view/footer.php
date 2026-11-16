@@ -22,6 +22,7 @@
             <a href="fila_fifo.php">Fila FIFO</a>
             <a href="fila_prioridade.php">Fila de Prioridade</a>
             <a href="arvore_binaria.php">Árvore Binária</a>
+            <a href="arvore_trie.php">Árvore trie</a>
             <a href="arvore_patricia.php">Árvore Patricia</a>
         </div>
 

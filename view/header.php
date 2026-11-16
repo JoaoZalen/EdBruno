@@ -30,6 +30,7 @@ $conteudos = [
     'fila_fifo.php'       => 'Fila FIFO',
     'fila_prioridade.php' => 'Fila de Prioridade',
     'arvore_binaria.php'  => 'Árvore Binária',
+    'arvore_trie.php'=>'Árvore trie',
     'arvore_patricia.php' => 'Árvore Patricia',
 ];
 
