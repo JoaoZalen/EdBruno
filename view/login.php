@@ -1,0 +1,95 @@
+<?php
+session_start();
+if (isset($_SESSION['estaLogado']) && $_SESSION['estaLogado'] === true) {
+    header('Location: home.php');
+    exit;
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ED Ensino</title>
+
+    <link rel="stylesheet" href="../css/base.css?v=2">
+    <link rel="stylesheet" href="../css/header.css?v=5">
+    <link rel="stylesheet" href="../css/footer.css?v=3">
+    <link rel="stylesheet" href="../css/auth.css?v=1">
+
+</head>
+
+<body>
+
+<?php include 'header.php'; ?>
+
+<main class="container-login">
+
+    <section class="login-box">
+
+        <div class="left-login">
+
+            <h1>
+                Bem-vindo ao
+                <span>ED Ensino</span>
+            </h1>
+
+            <p>
+                Acesse sua conta para continuar estudando
+                Estruturas de Dados.
+            </p>
+
+        </div>
+
+        <div class="right-login">
+
+            <form action="../processamento/processamento.php" method="POST">
+
+                <input type="hidden" name="acao" value="login">
+
+                <h2>Login</h2>
+
+                <?php
+                if(isset($_SESSION['Error'])){
+                    echo "<div class='mensagem-erro'>" . $_SESSION['Error'] . "</div>";
+                    unset($_SESSION['Error']);
+                }
+                ?>
+
+                <div class="input-group">
+                    <label>E-mail</label>
+                    <input type="email" name="inputEmail" placeholder="Digite seu e-mail" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input type="password" name="inputSenha" placeholder="Digite sua senha" required>
+                </div>
+
+                <button type="submit" class="btn-entrar">
+                    Entrar
+                </button>
+
+                <a href="cadastro.php" class="cadastro-link">
+                    Não possui conta? Cadastre-se
+                </a>
+
+                <a href="recuperar_senha.php" class="cadastro-link">
+                    Esqueci minha senha
+                </a>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</main>
+
+<?php include 'footer.php'; ?>
+
+</body>
+</html>
