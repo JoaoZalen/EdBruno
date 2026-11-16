@@ -2,12 +2,6 @@
 /**
  * simulador.php — Simulador interativo de Estruturas de Dados
  * Caminho: view/simulador.php
- *
- * Uma única página serve todas as estruturas. A estrutura escolhida
- * vem pela URL:  simulador.php?ed=pilha
- *
- * O PHP só monta a página (abas, textos, campos).
- * Toda a animação e a lógica das operações ficam em ../js/simulador.js
  */
 include 'session.php';
 
@@ -55,6 +49,13 @@ $estruturas = [
         'desc'   => 'Cada nó tem até dois filhos: valores menores ficam à esquerda e maiores à direita. Assim a busca descarta metade da árvore a cada passo.',
         'pagina' => 'arvore_binaria.php',
     ],
+    'arvore_patricia' => [
+        'aba'    => 'Árvore Patricia',
+        'titulo' => 'Árvore Patricia (Radix Tree)',
+        'regra'  => 'Prefixos comprimidos',
+        'desc'   => 'Versão compactada da Trie: nós com apenas um filho são fundidos em um único bloco de caracteres, economizando memória e saltos na busca.',
+        'pagina' => 'arvore_patricia.php',
+    ],
 ];
 
 /* ---- Estrutura escolhida (só aceita as da lista acima) ---- */
@@ -66,6 +67,8 @@ $atual = $estruturas[$ed];
 
 $ehLista      = ($ed === 'lista_simples' || $ed === 'lista_dupla');
 $ehPrioridade = ($ed === 'fila_prioridade');
+$ehTexto      = ($ed === 'arvore_trie' || $ed === 'arvore_patricia');
+$ehArvore     = ($ed === 'arvore_binaria' || $ed === 'arvore_trie' || $ed === 'arvore_patricia');
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -82,7 +85,6 @@ $ehPrioridade = ($ed === 'fila_prioridade');
 
 <?php include 'header.php'; ?>
 
-<!-- A página inteira é o simulador (sem rodapé), para ocupar a tela toda -->
 <main class="sim-app" id="simulador" data-estrutura="<?php echo $ed; ?>">
 
     <!-- ========== BARRA DE FERRAMENTAS ========== -->
@@ -115,7 +117,7 @@ $ehPrioridade = ($ed === 'fila_prioridade');
     <!-- ========== CORPO: PALCO + PAINEL ========== -->
     <div class="sim-corpo">
 
-        <!-- ---- Palco: área infinita onde a estrutura é desenhada ---- -->
+        <!-- ---- Palco ---- -->
         <section class="sim-palco" id="sim-palco" aria-label="Área da simulação">
 
             <div class="sim-info" id="sim-info"></div>
@@ -128,7 +130,6 @@ $ehPrioridade = ($ed === 'fila_prioridade');
                 <button type="button" id="sim-dica-fechar" aria-label="Fechar dica">×</button>
             </div>
 
-            <!-- "mundo": recebe zoom e deslocamento. Linhas (SVG) ficam embaixo dos nós -->
             <div class="sim-mundo" id="sim-mundo">
                 <svg class="sim-links" id="sim-links" aria-hidden="true">
                     <defs>
@@ -172,10 +173,17 @@ $ehPrioridade = ($ed === 'fila_prioridade');
                 <h2>Operações</h2>
 
                 <div class="sim-campos">
+                    <?php if ($ehTexto) { ?>
+                    <label>
+                        Palavra / Prefixo
+                        <input type="text" id="sim-valor" maxlength="12" placeholder="aleatória (A-Z)">
+                    </label>
+                    <?php } else { ?>
                     <label>
                         Valor
                         <input type="number" id="sim-valor" min="0" max="999" placeholder="aleatório">
                     </label>
+                    <?php } ?>
 
                     <?php if ($ehLista) { ?>
                     <label>
@@ -221,10 +229,10 @@ $ehPrioridade = ($ed === 'fila_prioridade');
                 <h2>Legenda</h2>
                 <ul class="sim-legenda">
                     <li><span class="cor cor-atual"></span> visitando (atual)</li>
-                    <li><span class="cor cor-novo"></span> nó novo</li>
+                    <li><span class="cor cor-novo"></span> nó novo / dividido</li>
                     <li><span class="cor cor-alvo"></span> sendo removido</li>
-                    <li><span class="cor cor-achado"></span> encontrado</li>
-                    <li><span class="linha linha-azul"></span> ponteiro <?php echo $ed === 'arvore_binaria' ? 'para os filhos' : 'Próximo'; ?></li>
+                    <li><span class="cor cor-achado"></span> encontrado / fim de palavra</li>
+                    <li><span class="linha linha-azul"></span> ponteiro <?php echo $ehArvore ? 'para os filhos' : 'Próximo'; ?></li>
                     <?php if ($ed === 'lista_dupla') { ?>
                     <li><span class="linha linha-verde"></span> ponteiro Anterior</li>
                     <?php } ?>
@@ -243,11 +251,10 @@ $ehPrioridade = ($ed === 'fila_prioridade');
 
     </div>
 
-    <!-- Menu do botão direito (preenchido pelo JS) -->
     <div class="sim-menu" id="sim-menu" role="menu" hidden></div>
 
 </main>
 
-<script src="../js/simulador.js?v=3"></script>
+<script src="../js/simulador.js?v=4"></script>
 </body>
 </html>

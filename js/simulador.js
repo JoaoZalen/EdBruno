@@ -4,7 +4,8 @@
    Caminho: js/simulador.js
 
    Visão geral:
-   1. Estado        → "nos" (listas, pilha, filas), "raiz" (BST) ou "raizTrie" (Trie)
+   1. Estado        → "nos" (listas, pilha, filas), "raiz" (BST),
+                      "raizTrie" (Trie) ou "raizPat" (Árvore Patricia)
    2. Layout        → calcula onde cada nó deveria ficar (x, y)
    3. desenhar()    → cria/move os nós na tela (com transição CSS)
    4. Linhas        → um laço (requestAnimationFrame) redesenha as
@@ -48,7 +49,7 @@
 
     /* =============================================================
        1. CONFIGURAÇÃO E ESTADO
-       forma: 'linha' (horizontal) | 'coluna' (pilha) | 'arvore' | 'trie'
+       forma: 'linha' (horizontal) | 'coluna' (pilha) | 'arvore' | 'trie' | 'patricia'
        ============================================================= */
     var CONFIG = {
         lista_simples: {
@@ -86,18 +87,24 @@
         arvore_trie: {
             forma: 'trie', max: 45,
             ops: ['trieInserir', 'trieBuscar', 'triePrefixo', 'trieSugerir', 'trieRemover']
+        },
+        arvore_patricia: {
+            forma: 'patricia', max: 35,
+            ops: ['patInserir', 'patBuscar', 'patPrefixo', 'patSugerir', 'patRemover']
         }
     };
 
     var CONF = CONFIG[TIPO];
     if (!CONF) return;
-    var DUPLA  = !!CONF.duplo;
-    var ARVORE = CONF.forma === 'arvore';
-    var TRIE   = CONF.forma === 'trie';
+    var DUPLA    = !!CONF.duplo;
+    var ARVORE   = CONF.forma === 'arvore';
+    var TRIE     = CONF.forma === 'trie';
+    var PATRICIA = CONF.forma === 'patricia';
 
     var nos      = [];   // estruturas lineares: [{ id, valor, prio }] na ordem
     var raiz     = null; // árvore binária: { id, valor, esq, dir }
     var raizTrie = null; // árvore trie: { id, valor, fim, filhos: {} }
+    var raizPat  = null; // árvore patricia: { id, valor, fim, filhos: {} }
     var contador = 0;    // gera ids únicos
     var ocupado  = false;
 
@@ -414,6 +421,72 @@
             '    }',
             '    return false;',
             '}'
+        ],
+
+        /* ----- Árvore Patricia (Radix Tree) ----- */
+        patInserir: [
+            'NoPatricia atual = raiz;',
+            'while (resto.Length > 0) {',
+            '    char c = resto[0];',
+            '    if (!atual.Filhos.ContainsKey(c)) {',
+            '        atual.Filhos[c] = new NoPatricia(resto, fim: true); return;',
+            '    }',
+            '    NoPatricia filho = atual.Filhos[c];',
+            '    int k = PrefixoComum(resto, filho.Rotulo);',
+            '    if (k < filho.Rotulo.Length) { // Divide o nó (Split)',
+            '        NoPatricia meio = new NoPatricia(filho.Rotulo.Substring(0, k));',
+            '        filho.Rotulo = filho.Rotulo.Substring(k);',
+            '        meio.Filhos[filho.Rotulo[0]] = filho;',
+            '        atual.Filhos[c] = meio;  filho = meio;',
+            '    }',
+            '    resto = resto.Substring(k);  atual = filho;',
+            '}',
+            'atual.FimDePalavra = true;'
+        ],
+        patBuscar: [
+            'NoPatricia atual = raiz;',
+            'while (resto.Length > 0) {',
+            '    if (!atual.Filhos.TryGetValue(resto[0], out var filho)) return false;',
+            '    if (!resto.StartsWith(filho.Rotulo)) return false;',
+            '    resto = resto.Substring(filho.Rotulo.Length);',
+            '    atual = filho;',
+            '}',
+            'return atual.FimDePalavra;'
+        ],
+        patPrefixo: [
+            'NoPatricia atual = raiz;',
+            'while (resto.Length > 0) {',
+            '    if (!atual.Filhos.TryGetValue(resto[0], out var filho)) return false;',
+            '    if (!resto.StartsWith(filho.Rotulo) && !filho.Rotulo.StartsWith(resto)) return false;',
+            '    if (resto.Length <= filho.Rotulo.Length) return true;',
+            '    resto = resto.Substring(filho.Rotulo.Length);  atual = filho;',
+            '}',
+            'return true;'
+        ],
+        patSugerir: [
+            'NoPatricia no = LocalizarNoPrefixo(prefixo, out string acumulado);',
+            'if (no == null) return lista;',
+            'void Coletar(NoPatricia atual, string texto) {',
+            '    if (atual.FimDePalavra) lista.Add(texto);',
+            '    foreach (var filho in atual.Filhos.Values)',
+            '        Coletar(filho, texto + filho.Rotulo);',
+            '}'
+        ],
+        patRemover: [
+            'bool RemoverRec(NoPatricia atual, string resto) {',
+            '    if (resto.Length == 0) {',
+            '        if (!atual.FimDePalavra) return false;',
+            '        atual.FimDePalavra = false;',
+            '        FundirSeNecessario(atual); // Merge se tiver 1 filho',
+            '        return atual.Filhos.Count == 0;',
+            '    }',
+            '    char c = resto[0];',
+            '    NoPatricia filho = atual.Filhos[c];',
+            '    if (RemoverRec(filho, resto.Substring(filho.Rotulo.Length)))',
+            '        atual.Filhos.Remove(c);',
+            '    FundirSeNecessario(atual);',
+            '    return !atual.FimDePalavra && atual.Filhos.Count == 0;',
+            '}'
         ]
     };
 
@@ -471,8 +544,8 @@
             mapa['raiz'] = idDe(raiz);
             return mapa;
         }
-        if (TRIE) {
-            mapa['raiz'] = idDe(raizTrie);
+        if (TRIE || PATRICIA) {
+            mapa['raiz'] = idDe(TRIE ? raizTrie : raizPat);
             return mapa;
         }
         CONF.ponteiros.forEach(function (p) {
@@ -519,7 +592,7 @@
         }
     }
 
-    /* ---- Árvore Trie: utilidades ---- */
+    /* ---- Árvore Trie & Patricia: utilidades ---- */
     var PALAVRAS_EXEMPLO = ['CASA', 'CASACO', 'CASO', 'CARRO', 'CARTA', 'CAO', 'GATO', 'GALO', 'SOL', 'SOM', 'SONHO'];
 
     function criarNoTrie(letra) {
@@ -543,7 +616,8 @@
         if (!n) return acc;
         if (n.fim) acc.push(pref);
         Object.keys(n.filhos).sort().forEach(function (k) {
-            listarPalavrasTrie(n.filhos[k], pref + k, acc);
+            var filho = n.filhos[k];
+            listarPalavrasTrie(filho, pref + filho.valor, acc);
         });
         return acc;
     }
@@ -558,14 +632,54 @@
         a.fim = true;
     }
 
+    function criarNoPat(rotulo, fim) {
+        contador++;
+        return { id: contador, valor: rotulo, fim: !!fim, filhos: {} };
+    }
+
+    function garantirRaizPat() {
+        if (!raizPat) raizPat = criarNoPat('∅', false);
+        return raizPat;
+    }
+
+    function prefixoComum(a, b) {
+        var i = 0, lim = Math.min(a.length, b.length);
+        while (i < lim && a[i] === b[i]) i++;
+        return i;
+    }
+
+    function inserirPatSemAnimar(palavra) {
+        var atual = garantirRaizPat();
+        var resto = palavra;
+        while (resto.length > 0) {
+            var c = resto[0];
+            var filho = atual.filhos[c];
+            if (!filho) {
+                atual.filhos[c] = criarNoPat(resto, true);
+                return;
+            }
+            var k = prefixoComum(resto, filho.valor);
+            if (k < filho.valor.length) {
+                var meio = criarNoPat(filho.valor.slice(0, k), false);
+                filho.valor = filho.valor.slice(k);
+                meio.filhos[filho.valor[0]] = filho;
+                atual.filhos[c] = meio;
+                filho = meio;
+            }
+            resto = resto.slice(k);
+            atual = filho;
+        }
+        atual.fim = true;
+    }
+
     function totalNos() {
         if (ARVORE) return emOrdemLista(raiz, 0, []).length;
-        if (TRIE) return contarNosTrie(raizTrie);
+        if (TRIE || PATRICIA) return contarNosTrie(TRIE ? raizTrie : raizPat);
         return nos.length;
     }
 
     /* ---------- Painel de código ---------- */
-    var PALAVRAS = /\b(new|if|else|return|while|for|int|null|throw|true|false|void|bool|char|string|foreach|in|No|NoTrie|Exception|Console|Queue)\b/g;
+    var PALAVRAS = /\b(new|if|else|return|while|for|int|null|throw|true|false|void|bool|char|string|foreach|in|out|var|No|NoTrie|NoPatricia|Exception|Console|Queue)\b/g;
 
     function escapar(t) {
         return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -589,7 +703,6 @@
         for (var k = 0; k < linhas.length; k++) {
             linhas[k].classList.toggle('ativa', k === i);
         }
-        // rola só a caixa de código (não o painel) até a linha ativa
         var ativa = linhas[i];
         if (ativa) {
             var topo = ativa.offsetTop, fim = topo + ativa.offsetHeight;
@@ -603,13 +716,11 @@
        ============================================================= */
     var ESP_X = 170;   // distância entre nós na horizontal
     var ESP_Y = 100;   // distância entre nós da pilha
-    var ARV_X = 92;    // árvore: distância horizontal entre colunas
+    var ARV_X = PATRICIA ? 115 : 92; // árvore: distância horizontal entre colunas
     var ARV_Y = 112;   // árvore: distância entre níveis
 
     function layoutEstrutura() {
         if (ARVORE) {
-            // x = posição na ordem (em ordem), y = profundidade.
-            // A raiz fica sempre em x = 0, assim ela não "pula" ao inserir.
             var lista = emOrdemLista(raiz, 0, []);
             var iRaiz = 0;
             lista.forEach(function (it, i) { if (it.no === raiz) iRaiz = i; });
@@ -617,8 +728,9 @@
                 return { no: it.no, x: (i - iRaiz) * ARV_X, y: it.prof * ARV_Y };
             });
         }
-        if (TRIE) {
-            if (!raizTrie) return [];
+        if (TRIE || PATRICIA) {
+            var r = TRIE ? raizTrie : raizPat;
+            if (!r) return [];
             var folhas = 0;
             var coords = [];
             function posicionarTrie(n, prof) {
@@ -634,7 +746,7 @@
                 coords.push({ no: n, x: xAtual, y: prof * ARV_Y });
                 return xAtual;
             }
-            var xRaiz = posicionarTrie(raizTrie, 0);
+            var xRaiz = posicionarTrie(r, 0);
             return coords.map(function (it) {
                 return { no: it.no, x: it.x - xRaiz, y: it.y };
             });
@@ -654,25 +766,13 @@
 
     /* =============================================================
        5. DESENHO
-       op = {
-         atual, novo, alvo, achado: id          → destaques
-         visitados: [ids]                       → já visitados (percursos)
-         ponteiros: { nome: id|null }           → sobrescreve etiquetas
-         tags: { id: ['pai', ...] }             → etiquetas extras
-         flutuando: id                          → nó ainda solto (acima)
-         descolado: id                          → nó saindo (abaixo)
-         fora: [ids]                            → fora da corrente de ligações
-         ocultar: [{de, para, tipo}]            → esconde ligações
-         extras:  [{de, para, tipo}]            → ligações sendo criadas
-         soltos:  [{no, x, y}]                  → nós fora da estrutura
-       }
        ============================================================= */
     function criarUnidade(no) {
         var el = document.createElement('div');
         el.className = 'sim-ancora';
         el.dataset.id = no.id;
 
-        var esq = '', dir = TRIE ? '' : '<span class="sim-ptr" data-ptr="prox"></span>';
+        var esq = '', dir = (TRIE || PATRICIA) ? '' : '<span class="sim-ptr" data-ptr="prox"></span>';
         if (DUPLA) esq = '<span class="sim-ptr" data-ptr="ant"></span>';
         if (ARVORE) {
             esq = '<span class="sim-ptr" data-ptr="esq"></span>';
@@ -710,7 +810,7 @@
             u.el.style.transform = 'translate(' + p.x + 'px,' + (p.y - 50) + 'px)';
             u.el.style.opacity = '0';
             camadaNos.appendChild(u.el);
-            void u.el.offsetWidth; // força o navegador a aplicar a posição inicial
+            void u.el.offsetWidth;
             u.el.classList.remove('sem-transicao');
         }
         u.el.style.opacity = '1';
@@ -734,7 +834,6 @@
             todos.push(s.no);
         });
 
-        // posições definidas pelo usuário (arrastando) têm prioridade
         Object.keys(manual).forEach(function (id) {
             if (estruturais[id]) alvos[id] = manual[id];
         });
@@ -743,11 +842,10 @@
 
         posicoes = alvos;
 
-        // ---- 2) Ligações (antes dos nós: os campos • / ∅ dependem delas) ----
+        // ---- 2) Ligações ----
         linksAtuais = calcularLinks(op);
 
         if (op.atual && ultimoAtual && op.atual !== ultimoAtual) {
-            // a linha percorrida entre o "atual" anterior e o novo acende
             linksAtuais.forEach(function (l) {
                 if ((l.de === ultimoAtual && l.para === op.atual) ||
                     (l.para === ultimoAtual && l.de === op.atual)) {
@@ -779,7 +877,7 @@
             });
         }
         if (op.atual) addTag(op.atual, 'atual', 'sim-tag--atual');
-        if (TRIE) {
+        if (TRIE || PATRICIA) {
             todos.forEach(function (no) {
                 if (no.fim) addTag(no.id, 'fim', 'sim-tag--extra');
             });
@@ -808,9 +906,8 @@
             cl.toggle('achado',      op.achado === no.id);
             cl.toggle('visitado',    !!(op.visitados && op.visitados.indexOf(no.id) >= 0));
             cl.toggle('fixado',      !!manual[no.id]);
-            cl.toggle('fim-palavra', !!(TRIE && no.fim));
+            cl.toggle('fim-palavra', !!((TRIE || PATRICIA) && no.fim));
 
-            // valor (pisca quando muda — ex.: cópia do sucessor na árvore)
             if (u.valorMostrado !== no.valor) {
                 if (u.valorMostrado !== null) {
                     u.valorEl.classList.remove('trocou');
@@ -821,7 +918,6 @@
                 u.valorMostrado = no.valor;
             }
 
-            // campos de ponteiro: • aponta para alguém, ∅ = null
             var campos = u.el.querySelectorAll('.sim-ptr');
             for (var c = 0; c < campos.length; c++) {
                 var tipo = campos[c].dataset.ptr;
@@ -841,7 +937,6 @@
             posicionar(u, alvos[no.id], nova);
         });
 
-        // remove da tela quem saiu da estrutura
         Object.keys(unidades).forEach(function (id) {
             if (!vivos[id] && !unidades[id].saindo) {
                 unidades[id].el.remove();
@@ -869,14 +964,14 @@
                 if (n.dir) L.push({ de: n.id, para: n.dir.id, tipo: 'dir' });
                 rec(n.esq); rec(n.dir);
             })(raiz);
-        } else if (TRIE) {
+        } else if (TRIE || PATRICIA) {
             (function recT(n) {
                 if (!n) return;
                 Object.keys(n.filhos).sort().forEach(function (k) {
                     L.push({ de: n.id, para: n.filhos[k].id, tipo: 'trie' });
                     recT(n.filhos[k]);
                 });
-            })(raizTrie);
+            })(TRIE ? raizTrie : raizPat);
         } else {
             var fora = op.fora || [];
             var cadeia = nos.filter(function (n) { return fora.indexOf(n.id) < 0; });
@@ -900,10 +995,10 @@
 
     function atualizarInfo(ponteiros) {
         var total = totalNos();
-        var partes = [((ARVORE || TRIE) ? '<b>nós</b> = ' : '<b>tamanho</b> = ') + total];
+        var partes = [((ARVORE || TRIE || PATRICIA) ? '<b>nós</b> = ' : '<b>tamanho</b> = ') + total];
         if (ARVORE) partes.push('<b>altura</b> = ' + alturaArvore(raiz));
-        if (TRIE) {
-            partes.push('<b>palavras</b> = ' + listarPalavrasTrie(raizTrie, '', []).length);
+        if (TRIE || PATRICIA) {
+            partes.push('<b>palavras</b> = ' + listarPalavrasTrie(TRIE ? raizTrie : raizPat, '', []).length);
         }
         Object.keys(ponteiros).forEach(function (nome) {
             var u = unidades[ponteiros[nome]];
@@ -916,7 +1011,7 @@
        6. LIGAÇÕES (SVG) — redesenhadas a cada quadro
        ============================================================= */
     var SVGNS = 'http://www.w3.org/2000/svg';
-    var caminhos = {}; // chave -> elemento <path>
+    var caminhos = {};
 
     function chaveLink(l) { return l.de + '-' + l.para + '-' + l.tipo; }
 
@@ -925,7 +1020,6 @@
         return { x: m.m41, y: m.m42, hw: u.caixa.offsetWidth / 2, hh: u.caixa.offsetHeight / 2 };
     }
 
-    // ponto na borda de um retângulo, saindo do centro na direção (dx, dy)
     function naBorda(c, dx, dy, folga) {
         var tx = dx !== 0 ? (c.hw + folga) / Math.abs(dx) : Infinity;
         var ty = dy !== 0 ? (c.hh + folga) / Math.abs(dy) : Infinity;
@@ -946,7 +1040,6 @@
             if (dist < 12) return;
             dx /= dist; dy /= dist;
 
-            // na lista dupla, ida e volta ficam lado a lado
             var off = 0;
             if (l.tipo === 'prox' && DUPLA) off = -7;
             if (l.tipo === 'ant') off = -7;
@@ -991,8 +1084,6 @@
     /* =============================================================
        7. PASSOS REUTILIZÁVEIS DAS OPERAÇÕES
        ============================================================= */
-
-    // um passo: destaca a linha, explica e redesenha
     function passo(linha, texto, op) {
         if (linha !== null) destacarLinha(linha);
         narrar(texto);
@@ -1000,7 +1091,6 @@
         return espera();
     }
 
-    // coloca um nó na posição i da estrutura linear
     function colocar(i, no, linha, texto, op) {
         nos.splice(i, 0, no);
         op = op || {};
@@ -1008,7 +1098,6 @@
         return passo(linha, texto, op);
     }
 
-    // anima o sumiço de um nó e tira da tela
     function sumir(id) {
         var u = unidades[id];
         if (!u) return Promise.resolve();
@@ -1020,7 +1109,6 @@
         });
     }
 
-    // retira o nó da posição i: fica vermelho, desliga, cai e some
     async function retirar(i, linha, texto, op) {
         var id = nos[i].id;
         op = mesclar(op || {}, { alvo: id });
@@ -1038,13 +1126,11 @@
         return OPS[opId].fn(a, b);
     }
 
-    // nó novo da árvore "carregado" ao lado do nó atual enquanto desce
     function aoLado(noNovo, idRef) {
         var p = posicoes[idRef] || { x: 0, y: 0 };
         return [{ no: noNovo, x: p.x - 78, y: p.y - 72 }];
     }
 
-    // nó novo da lista "carregado" acima do nó atual
     function acima(noNovo, idRef) {
         var p = posicoes[idRef] || { x: 0, y: 0 };
         return [{ no: noNovo, x: p.x, y: p.y - 92 }];
@@ -1052,9 +1138,6 @@
 
     /* =============================================================
        8. OPERAÇÕES
-       campos: entradas usadas ('valor', 'pos', 'prio', 'texto')
-       grupo:  'add' | 'rem' | 'ver'  (cor do botão)
-       fn devolve { msg, manter } — manter = deixa o destaque final
        ============================================================= */
     var OPS = {
 
@@ -1116,7 +1199,6 @@
                     return { msg: 'Inseriu ' + v + ' no fim' };
                 }
 
-                // lista simples: o nó novo é "carregado" enquanto procuramos o fim
                 await passo(0, 'Criamos o nó ' + v + '. Agora é preciso achar o último nó.', { soltos: acima(no, nos[0].id) });
                 await passo(2, 'atual começa na cabeça (' + nos[0].valor + ').',
                     { atual: nos[0].id, soltos: acima(no, nos[0].id) });
@@ -1608,7 +1690,6 @@
                 }
                 await passo(1, 'Achamos o nó ' + v + '!', { alvo: a.id, tags: tagPai() });
 
-                // caso 3: dois filhos → troca pelo sucessor
                 if (a.esq && a.dir) {
                     await passo(6, 'O nó tem DOIS filhos. Truque: trocamos o valor dele pelo sucessor (o menor da subárvore direita).', { alvo: a.id });
                     var paiSuc = a, suc = a.dir;
@@ -1861,6 +1942,231 @@
                 desenhar();
                 return { msg: encontrou ? 'Removeu "' + palavra + '"' : 'Palavra "' + palavra + '" não encontrada' };
             }
+        },
+
+        /* ======================= ÁRVORE PATRICIA ======================= */
+        patInserir: {
+            rotulo: 'Inserir palavra', metodo: 'Inserir(palavra)', custo: 'O(m)',
+            campos: ['texto'], grupo: 'add',
+            fn: async function (palavra) {
+                var atual = garantirRaizPat();
+                var resto = palavra;
+                await passo(0, 'Começamos na raiz. Vamos inserir "' + palavra + '" comprimindo prefixos.', { atual: atual.id });
+
+                while (resto.length > 0) {
+                    var c = resto[0];
+                    await passo(2, 'Restante: "' + resto + '". Procurando ramo que começa com \'' + c + '\'.', { atual: atual.id });
+
+                    if (!atual.filhos[c]) {
+                        var novo = criarNoPat(resto, true);
+                        atual.filhos[c] = novo;
+                        await passo(4, 'Nenhum ramo com \'' + c + '\': criamos um único nó comprimido "' + resto + '"!', { atual: atual.id, novo: novo.id });
+                        return { msg: 'Inseriu "' + palavra + '"', manter: true };
+                    }
+
+                    var filho = atual.filhos[c];
+                    await passo(6, 'Encontrado ramo "' + filho.valor + '". Comparando prefixo com "' + resto + '".', { atual: filho.id });
+                    var k = prefixoComum(resto, filho.valor);
+
+                    if (k < filho.valor.length) {
+                        var pref = filho.valor.slice(0, k);
+                        var sobraFilho = filho.valor.slice(k);
+                        await passo(8, 'Divergência após "' + pref + '"! Vamos DIVIDIR (split) o nó "' + filho.valor + '" em "' + pref + '" + "' + sobraFilho + '".', { alvo: filho.id });
+
+                        var meio = criarNoPat(pref, false);
+                        filho.valor = sobraFilho;
+                        meio.filhos[sobraFilho[0]] = filho;
+                        atual.filhos[c] = meio;
+                        filho = meio;
+                        await passo(12, 'Nó intermediário "' + pref + '" criado e conectado ao restante "' + sobraFilho + '".', { novo: meio.id, atual: atual.id });
+                    }
+
+                    resto = resto.slice(k);
+                    atual = filho;
+                    await passo(14, resto.length ? 'Avançamos para "' + atual.valor + '". Ainda falta inserir "' + resto + '".' : 'Consumo completo da palavra no nó "' + atual.valor + '".', { atual: atual.id });
+                }
+
+                atual.fim = true;
+                await passo(16, 'Marcamos FimDePalavra = true em "' + atual.valor + '".', { achado: atual.id });
+                return { msg: 'Inseriu "' + palavra + '"', manter: true };
+            }
+        },
+
+        patBuscar: {
+            rotulo: 'Buscar palavra', metodo: 'Buscar(palavra)', custo: 'O(m)',
+            campos: ['texto'], grupo: 'ver',
+            fn: async function (palavra) {
+                if (!raizPat) { destacarLinha(0); falhar('A Árvore Patricia está vazia.'); }
+                var atual = raizPat, resto = palavra;
+                await passo(0, 'Buscando "' + palavra + '" a partir da raiz.', { atual: atual.id });
+
+                while (resto.length > 0) {
+                    var filho = atual.filhos[resto[0]];
+                    if (!filho) {
+                        await passo(2, 'Não há ramo começando com \'' + resto[0] + '\': "' + palavra + '" não existe.');
+                        return { msg: 'Buscou "' + palavra + '": não encontrada' };
+                    }
+                    await passo(3, 'Comparando bloco "' + filho.valor + '" com início de "' + resto + '".', { atual: filho.id });
+                    if (resto.indexOf(filho.valor) !== 0) {
+                        await passo(3, 'O bloco "' + filho.valor + '" não casa com "' + resto + '": palavra ausente.', { alvo: filho.id });
+                        return { msg: 'Buscou "' + palavra + '": não encontrada' };
+                    }
+                    resto = resto.slice(filho.valor.length);
+                    atual = filho;
+                    await passo(5, 'Saltamos ' + filho.valor.length + ' caracteres de uma vez! Restante: "' + (resto || '∅') + '".', { atual: atual.id });
+                }
+
+                if (atual.fim) {
+                    await passo(7, 'FimDePalavra = true! Palavra "' + palavra + '" encontrada.', { achado: atual.id });
+                    return { msg: 'Buscou "' + palavra + '": encontrada', manter: true };
+                } else {
+                    await passo(7, 'FimDePalavra = false: "' + palavra + '" é apenas um prefixo interno.', { alvo: atual.id });
+                    return { msg: 'Buscou "' + palavra + '": apenas prefixo', manter: true };
+                }
+            }
+        },
+
+        patPrefixo: {
+            rotulo: 'Buscar prefixo', metodo: 'ComecaCom(prefixo)', custo: 'O(m)',
+            campos: ['texto'], grupo: 'ver',
+            fn: async function (prefixo) {
+                if (!raizPat) { destacarLinha(0); falhar('A Árvore Patricia está vazia.'); }
+                var atual = raizPat, resto = prefixo;
+                await passo(0, 'Verificando prefixo "' + prefixo + '".', { atual: atual.id });
+
+                while (resto.length > 0) {
+                    var filho = atual.filhos[resto[0]];
+                    if (!filho) {
+                        await passo(2, 'Sem ramo para \'' + resto[0] + '\': prefixo não existe.');
+                        return { msg: 'Prefixo "' + prefixo + '": não encontrado' };
+                    }
+                    if (resto.indexOf(filho.valor) !== 0 && filho.valor.indexOf(resto) !== 0) {
+                        await passo(3, 'Bloco "' + filho.valor + '" diverge de "' + resto + '".', { alvo: filho.id });
+                        return { msg: 'Prefixo "' + prefixo + '": não encontrado' };
+                    }
+                    if (resto.length <= filho.valor.length) {
+                        await passo(4, 'O prefixo "' + prefixo + '" está contido dentro do nó "' + filho.valor + '"! Retorna true.', { achado: filho.id });
+                        return { msg: 'Prefixo "' + prefixo + '": válido', manter: true };
+                    }
+                    resto = resto.slice(filho.valor.length);
+                    atual = filho;
+                    await passo(5, 'Desce para "' + atual.valor + '". Restante: "' + resto + '".', { atual: atual.id });
+                }
+
+                await passo(7, 'Prefixo "' + prefixo + '" válido!', { achado: atual.id });
+                return { msg: 'Prefixo "' + prefixo + '": válido', manter: true };
+            }
+        },
+
+        patSugerir: {
+            rotulo: 'Autocompletar', metodo: 'SugerirPalavras(prefixo)', custo: 'O(m + k)',
+            campos: ['texto'], grupo: 'ver',
+            fn: async function (prefixo) {
+                if (!raizPat) { destacarLinha(0); falhar('A Árvore Patricia está vazia.'); }
+                var atual = raizPat, resto = prefixo, acumulado = '';
+                await passo(0, 'Localizando nó base para o prefixo "' + prefixo + '"...', { atual: atual.id });
+
+                while (resto.length > 0) {
+                    var filho = atual.filhos[resto[0]];
+                    if (!filho || (resto.indexOf(filho.valor) !== 0 && filho.valor.indexOf(resto) !== 0)) {
+                        await passo(1, 'Prefixo "' + prefixo + '" não encontrado.');
+                        return { msg: 'Autocompletar "' + prefixo + '": 0 sugestões' };
+                    }
+                    acumulado += filho.valor;
+                    resto = resto.length <= filho.valor.length ? '' : resto.slice(filho.valor.length);
+                    atual = filho;
+                }
+
+                var sugestoes = [], vis = [];
+                async function coletar(no, texto) {
+                    vis.push(no.id);
+                    if (no.fim) {
+                        sugestoes.push(texto);
+                        await passo(3, 'Palavra encontrada: "' + texto + '".   Sugestões: [' + sugestoes.join(', ') + ']', { achado: no.id, visitados: vis.slice() });
+                    } else {
+                        await passo(2, 'Explorando subárvore "' + texto + '"...', { atual: no.id, visitados: vis.slice() });
+                    }
+                    var chaves = Object.keys(no.filhos).sort();
+                    for (var k = 0; k < chaves.length; k++) {
+                        var f = no.filhos[chaves[k]];
+                        await passo(5, 'Descendo para bloco "' + f.valor + '".', { atual: no.id, visitados: vis.slice() });
+                        await coletar(f, texto + f.valor);
+                    }
+                }
+
+                await coletar(atual, acumulado);
+                narrar('Sugestões para "' + prefixo + '": ' + (sugestoes.length ? sugestoes.join(', ') : 'nenhuma'));
+                return { msg: 'Sugestões ("' + prefixo + '"): ' + sugestoes.join(', '), manter: true };
+            }
+        },
+
+        patRemover: {
+            rotulo: 'Remover palavra', metodo: 'Remover(palavra)', custo: 'O(m)',
+            campos: ['texto'], grupo: 'rem',
+            fn: async function (palavra) {
+                if (!raizPat) { destacarLinha(0); falhar('A Árvore Patricia está vazia.'); }
+                var encontrou = false;
+
+                async function fundirSeNecessario(no) {
+                    if (no === raizPat || no.fim) return;
+                    var chaves = Object.keys(no.filhos);
+                    if (chaves.length === 1) {
+                        var unicoFilho = no.filhos[chaves[0]];
+                        var antigoNo = no.valor, antigoFilho = unicoFilho.valor;
+                        await passo(4, 'Nó "' + antigoNo + '" ficou com apenas 1 filho ("' + antigoFilho + '") e não é fim de palavra: FUNDIR (merge)!', { atual: no.id, novo: unicoFilho.id });
+                        no.valor = antigoNo + antigoFilho;
+                        no.fim = unicoFilho.fim;
+                        no.filhos = unicoFilho.filhos;
+                        await sumir(unicoFilho.id);
+                        desenhar({ novo: no.id });
+                    }
+                }
+
+                async function rec(atual, resto) {
+                    if (resto.length === 0) {
+                        await passo(1, 'Chegamos ao nó "' + atual.valor + '".', { atual: atual.id });
+                        if (!atual.fim) {
+                            await passo(2, 'FimDePalavra já era false: "' + palavra + '" não estava cadastrada.', { alvo: atual.id });
+                            return false;
+                        }
+                        encontrou = true;
+                        atual.fim = false;
+                        await passo(3, 'Desmarcamos FimDePalavra = false em "' + atual.valor + '".', { alvo: atual.id });
+                        await fundirSeNecessario(atual);
+                        return Object.keys(atual.filhos).length === 0;
+                    }
+
+                    var c = resto[0];
+                    var filho = atual.filhos[c];
+                    if (!filho || resto.indexOf(filho.valor) !== 0) {
+                        await passo(7, 'Caminho para "' + resto + '" não encontrado.', { atual: atual.id });
+                        return false;
+                    }
+
+                    await passo(8, 'Descendo para bloco "' + filho.valor + '"...', { atual: filho.id });
+                    var apagarFilho = await rec(filho, resto.slice(filho.valor.length));
+
+                    if (apagarFilho) {
+                        var idF = filho.id;
+                        await passo(10, 'Removendo folha sem filhos "' + filho.valor + '"...', { atual: atual.id, alvo: idF });
+                        delete atual.filhos[c];
+                        await sumir(idF);
+                        desenhar({ atual: atual.id });
+                    }
+
+                    await fundirSeNecessario(atual);
+                    return !atual.fim && Object.keys(atual.filhos).length === 0 && atual !== raizPat;
+                }
+
+                await rec(raizPat, palavra);
+                if (raizPat && !raizPat.fim && Object.keys(raizPat.filhos).length === 0) {
+                    var idR = raizPat.id;
+                    raizPat = null;
+                    await sumir(idR);
+                }
+                desenhar();
+                return { msg: encontrou ? 'Removeu "' + palavra + '"' : 'Palavra "' + palavra + '" não encontrada' };
+            }
         }
     };
 
@@ -1881,7 +2187,7 @@
                     await passo(linhaDe.visita, 'Imprime ' + n.valor + '.   Saída: ' + saida.join(' '), { atual: n.id, visitados: vis.slice() });
                 } else {
                     var filho = n[acao];
-                    if (!filho) continue; // filho null: a chamada retorna na hora
+                    if (!filho) continue;
                     await passo(linhaDe[acao], 'Desce para a ' + (acao === 'esq' ? 'esquerda' : 'direita') + ' de ' + n.valor + '.',
                         { atual: n.id, visitados: vis.slice() });
                     await rec(filho);
@@ -1911,7 +2217,7 @@
         return { msg: (lado === 'esq' ? 'Mínimo' : 'Máximo') + ' = ' + a.valor, manter: true };
     }
 
-    /* ---- Lista dupla: remover o nó da posição i (usado por 2 operações) ---- */
+    /* ---- Lista dupla: remover o nó da posição i ---- */
     async function removerDuploEm(i, linhaAchou, textoAchou, linhaBase) {
         var no = nos[i], antN = nos[i - 1], proxN = nos[i + 1];
         await passo(linhaAchou, textoAchou, { alvo: no.id });
@@ -1945,7 +2251,6 @@
         return s.length ? s : null;
     }
 
-    // preset: valores vindos do menu do botão direito (ignoram os campos)
     async function executar(opId, preset) {
         if (ocupado) return;
         preset = preset || {};
@@ -1954,7 +2259,7 @@
 
         if (op.campos.indexOf('valor') >= 0) {
             valor = (preset.valor !== undefined) ? preset.valor : lerInteiro(campoValor);
-            if (valor === null) valor = sortear();          // vazio = sorteia
+            if (valor === null) valor = sortear();
             if (valor < 0 || valor > 999) return erroRapido('O valor precisa estar entre 0 e 999.', campoValor);
         }
         if (op.campos.indexOf('texto') >= 0) {
@@ -2028,7 +2333,7 @@
     function enquadrar(suave) {
         var lista = layoutEstrutura();
         var W = palco.clientWidth, H = palco.clientHeight;
-        var topo = 64, baixo = 96; // espaço da barra de informações e da narração
+        var topo = 64, baixo = 96;
         var areaH = Math.max(H - topo - baixo, 120);
 
         if (!lista.length) {
@@ -2085,7 +2390,6 @@
         narrar('Os nós voltaram para a posição automática.');
     }
 
-    // mover o fundo (arrastando onde não há nó)
     var pan = null;
     palco.addEventListener('pointerdown', function (e) {
         if (e.button !== 0) return;
@@ -2155,10 +2459,9 @@
 
     /* =============================================================
        12. MENU DO BOTÃO DIREITO
-       item = { texto, dica, acao, desativado, perigo } | '-' | { titulo }
        ============================================================= */
     function valorDoCampo() {
-        if (TRIE) {
+        if (TRIE || PATRICIA) {
             var t = lerTexto(campoValor);
             return t === null ? undefined : t;
         }
@@ -2215,7 +2518,7 @@
         var i = -1;
         nos.forEach(function (n, k) { if (n.id === id) i = k; });
         var vCampo = valorDoCampo();
-        var rotuloValor = vCampo !== undefined ? vCampo : (TRIE ? 'palavra aleatória' : 'valor aleatório');
+        var rotuloValor = vCampo !== undefined ? vCampo : ((TRIE || PATRICIA) ? 'palavra aleatória' : 'valor aleatório');
 
         if (ARVORE) {
             itens.push({ titulo: 'Nó ' + no.valor });
@@ -2244,6 +2547,29 @@
                         Object.keys(n.filhos).forEach(function (k) { acharPal(n.filhos[k], caminho + k); });
                     })(raizTrie, '');
                     if (pal) executar('trieRemover', { valor: pal, semFoco: true });
+                } });
+            }
+        } else if (PATRICIA) {
+            itens.push({ titulo: (no === raizPat ? 'Raiz vazia' : 'Bloco "' + no.valor + '"') + (no.fim ? ' · fim de palavra' : '') });
+            itens.push({ texto: 'Inserir ' + rotuloValor, cor: 'verde', acao: function () { executar('patInserir', { valor: vCampo, semFoco: true }); } });
+            itens.push({ texto: 'Autocompletar a partir daqui', desativado: no === raizPat, dica: no === raizPat ? 'selecione um nó' : 'lista palavras deste ramo', acao: function () {
+                var pref = '';
+                (function acharPref(n, caminho) {
+                    if (!n || pref) return;
+                    if (n.id === id) { pref = caminho; return; }
+                    Object.keys(n.filhos).forEach(function (k) { acharPref(n.filhos[k], caminho + n.filhos[k].valor); });
+                })(raizPat, '');
+                if (pref) executar('patSugerir', { valor: pref, semFoco: true });
+            } });
+            if (no.fim) {
+                itens.push({ texto: 'Remover palavra deste nó', cor: 'vermelho', acao: function () {
+                    var pal = '';
+                    (function acharPal(n, caminho) {
+                        if (!n || pal) return;
+                        if (n.id === id) { pal = caminho; return; }
+                        Object.keys(n.filhos).forEach(function (k) { acharPal(n.filhos[k], caminho + n.filhos[k].valor); });
+                    })(raizPat, '');
+                    if (pal) executar('patRemover', { valor: pal, semFoco: true });
                 } });
             }
         } else if (TIPO === 'lista_simples' || TIPO === 'lista_dupla') {
@@ -2284,7 +2610,7 @@
 
     function itensDoFundo() {
         var vCampo = valorDoCampo();
-        var rotulo = vCampo !== undefined ? vCampo : (TRIE ? 'palavra aleatória' : 'valor aleatório');
+        var rotulo = vCampo !== undefined ? vCampo : ((TRIE || PATRICIA) ? 'palavra aleatória' : 'valor aleatório');
         var primeiraAdd = CONF.ops.filter(function (o) { return OPS[o].grupo === 'add'; })[0];
         var addFim = (TIPO === 'lista_simples' || TIPO === 'lista_dupla') ? 'inserirFim' : primeiraAdd;
         return [
@@ -2298,7 +2624,6 @@
         ];
     }
 
-    // editar o dado de um nó (só listas): os ponteiros não mudam
     function criarEditor(no) {
         var f = document.createElement('form');
         f.className = 'sim-menu-editar';
@@ -2350,7 +2675,7 @@
         c.addEventListener('keydown', function (e) {
             if (e.key !== 'Enter') return;
             e.preventDefault();
-            var alvo = (campoPos && c === campoPos) ? 'inserirPosicao' : CONF.ops[(ARVORE || TRIE) ? 0 : (TIPO.indexOf('lista') === 0 ? 1 : 0)];
+            var alvo = (campoPos && c === campoPos) ? 'inserirPosicao' : CONF.ops[(ARVORE || TRIE || PATRICIA) ? 0 : (TIPO.indexOf('lista') === 0 ? 1 : 0)];
             executar(alvo);
         });
     });
@@ -2360,6 +2685,7 @@
         nos = [];
         raiz = null;
         raizTrie = null;
+        raizPat = null;
         manual = {};
         autoEnquadrar = true;
         desenhar();
@@ -2372,6 +2698,7 @@
         nos = [];
         raiz = null;
         raizTrie = null;
+        raizPat = null;
         manual = {};
         autoEnquadrar = true;
         desenhar();
@@ -2396,12 +2723,20 @@
             return;
         }
 
+        if (PATRICIA) {
+            var amostraPat = ['CASA', 'CASACO', 'CASO', 'CARRO', 'CARTA', 'GATO', 'GALO'];
+            amostraPat.forEach(inserirPatSemAnimar);
+            desenhar();
+            narrar('Árvore Patricia gerada com prefixos comprimidos: ' + amostraPat.join(', ') + '.');
+            registrar('Gerou Patricia aleatória');
+            return;
+        }
+
         for (var i = 0; i < 5; i++) {
             var p = CONF.prioridade ? Math.floor(Math.random() * 5) + 1 : undefined;
             nos.push(criarNo(sortear(), p));
         }
         if (CONF.prioridade) {
-            // maior prioridade na frente (sort estável mantém a ordem de chegada)
             nos.sort(function (a, b) { return b.prio - a.prio; });
         }
         desenhar();
@@ -2417,7 +2752,7 @@
     chkPasso.addEventListener('change', function () {
         modoPasso = chkPasso.checked;
         app.classList.toggle('modo-passo', modoPasso);
-        if (!modoPasso) avancarPasso(); // libera se estava esperando
+        if (!modoPasso) avancarPasso();
         narrar(modoPasso
             ? 'Modo passo a passo ligado: cada etapa espera você clicar em "Próximo passo" (ou apertar espaço).'
             : 'Modo passo a passo desligado: as operações rodam sozinhas.');
@@ -2459,7 +2794,7 @@
         if (e.key === 'f' || e.key === 'F') alternarTelaCheia();
     });
 
-    /* ---- Dica inicial (lembra se foi fechada) ---- */
+    /* ---- Dica inicial ---- */
     var dica = pegar('sim-dica');
     try { if (localStorage.getItem('sim-dica-fechada')) dica.hidden = true; } catch (e) { /* sem storage */ }
     pegar('sim-dica-fechar').addEventListener('click', function () {

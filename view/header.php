@@ -30,6 +30,7 @@ $conteudos = [
     'fila_fifo.php'       => 'Fila FIFO',
     'fila_prioridade.php' => 'Fila de Prioridade',
     'arvore_binaria.php'  => 'Árvore Binária',
+    'arvore_patricia.php' => 'Árvore Patricia',
 ];
 
 function linkAtivo($arquivo, $paginaAtual) {
